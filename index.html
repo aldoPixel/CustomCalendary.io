@@ -3,31 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
     <link
       rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css"
     />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var calendarEl = document.getElementById("calendar");
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: "dayGridMonth",
+          aspectRatio: 2,
+          selectable: true,
+          themeSystem: "bootstrap",
+          dateClick: (info) => console.log(info.dateStr),
+          select: ({ startStr, endStr }) =>
+            console.log(`Start: ${startStr}, End: ${endStr}`),
+          events: [
+            {
+              title: "Bea Miller Concert",
+              start: "2021-02-24",
+              end: "2021-02-26",
+              editable: true,
+              // display: "background",
+            },
+            {
+              title: "Role Model Concert",
+              start: "2021-02-24",
+              end: "2021-02-25",
+              editable: true,
+              // display: "background",
+            }
+          ],
+        });
+        calendar.render();
+      });
+    </script>
+    <title>Document</title>
   </head>
   <body>
-    <div class="container">
-      <ul class="nav nav-tabs">
-        <li role="presentation" class="active"><a href="#">MANAGE BOXES</a></li>
-        <li role="presentation"><a href="#">BUY A CODEBOX</a></li>
-        <li role="presentation"><a href="#">MY ACCOUNT</a></li>
-      </ul>
-     <div class="row">
-       <div class="col-md-6">
-         <span>Serial Number: </span>
-       </div>
-       <div class="col-md-6">
-         <span>Serial Number: </span>
-       </div>
-       <div class="col-md-4">CHECK IN</div>
-       <div class="col-md-4">CHEK OUT</div>
-       <div class="col-md-4"># OF NIGHTS</div>
-     </div>
-    </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <div id="calendar"></div>
   </body>
 </html>
