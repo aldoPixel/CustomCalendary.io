@@ -17,37 +17,7 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        var calendarEl = document.getElementById("calendar");
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: "dayGridMonth",
-          aspectRatio: 2,
-          selectable: true,
-          themeSystem: "bootstrap",
-          dateClick: (info) => console.log(info.dateStr),
-          select: ({ startStr, endStr }) =>
-            console.log(`Start: ${startStr}, End: ${endStr}`),
-          events: [
-            {
-              title: "Bea Miller Concert",
-              start: "2021-02-24",
-              end: "2021-02-26",
-              editable: true,
-              // display: "background",
-            },
-            {
-              title: "Role Model Concert",
-              start: "2021-02-24",
-              end: "2021-02-25",
-              editable: true,
-              // display: "background",
-            }
-          ],
-        });
-        calendar.render();
-      });
-    </script>
+    <script src="./calendar.js"></script>
     <title>Document</title>
   </head>
   <body>
