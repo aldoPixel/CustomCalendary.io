@@ -20,6 +20,7 @@ const loadCalendar = () => {
     },
     selectOverlap: (event) => {
       console.log(event);
+      Swal.fire("Hello");
     },
   });
   calendar.render();
