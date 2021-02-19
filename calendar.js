@@ -1,4 +1,7 @@
 const id = () => "_" + Math.random().toString(36).substr(2, 9);
+const currentDate = new Date();
+const date = new Date();
+date.setMonth(date.getMonth() + 1);
 
 const loadCalendar = () => {
   const calendarEl = document.getElementById("calendarOne");
@@ -7,13 +10,23 @@ const loadCalendar = () => {
   const calendarTwo = new FullCalendar.Calendar(calendarElTwo, {
     initialView: "dayGridMonth",
     aspectRatio: 2,
+    initialDate: date,
+    validRange: {
+      start: currentDate,
+    },
   });
 
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
+    initialDate: currentDate,
+    validRange: {
+      start: currentDate,
+    },
     aspectRatio: 2,
     selectable: true,
     themeSystem: "bootstrap",
+    fixedWeekCount: false,
+    //weekends: false,
     select: ({ startStr, endStr }) => {
       let newEvent = {
         id: id(),
