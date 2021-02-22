@@ -1,62 +1,36 @@
-const id = () => "_" + Math.random().toString(36).substr(2, 9);
-const currentDate = new Date();
-const date = new Date();
-date.setMonth(date.getMonth() + 1);
-date.setDate(1);
+//const disables = document.getElementsByClassName("disable-day");
+//for (let i = 0; i < disables.length; i++) {
+//disables[i].addEventListener("click", () => alert("No Disponible"));
+//}
+//alert("iniciado");
 
-const loadCalendar = () => {
-  const calendarEl = document.getElementById("calendarOne");
-  const calendarElTwo = document.getElementById("calendarTwo");
+let whenInstance = new When({
+  container: document.getElementById("picker-input"),
+  keyboardEvents: true,
+  inline: true,
+  double: true,
+  minDate: new Date(),
+});
 
-  const calendarTwo = new FullCalendar.Calendar(calendarElTwo, {
-    initialView: "dayGridMonth",
-    aspectRatio: 2,
-    initialDate: date,
-    fixedWeekCount: false,
-    selectable: true,
-    validRange: {
-      start: date,
-    },
-  });
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM fully loaded and parsed");
+  const disables = document.getElementsByClassName("disable-day");
 
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "dayGridMonth",
-    initialDate: currentDate,
-    validRange: {
-      start: currentDate,
-    },
-    aspectRatio: 2,
-    selectable: true,
-    themeSystem: "bootstrap",
-    fixedWeekCount: false,
-    selectMirror: true,
-    unselectAuto: false,
-    select: ({ startStr, endStr }) => {
-      let newEvent = {
-        id: id(),
-        start: startStr,
-        end: endStr,
-      };
-
-      calendar.addEvent(newEvent);
-      calendarTwo.addEvent(newEvent);
-    },
-    eventClick: ({ event: { id } }) => {
-      const selectedEvent = calendar.getEventById(id);
-      selectedEvent.remove();
-    },
-    selectOverlap: ({ startStr, endStr, id }) => {
-      console.log(id);
-      Swal.fire({
-        title: "Fecha Ocupada",
-        text: `${startStr} - ${endStr}`,
-        icon: "error",
-      });
-    },
-    eventDisplay: "background",
-  });
-  calendar.render();
-  calendarTwo.render();
-};
-
-document.addEventListener("DOMContentLoaded", loadCalendar);
+  for (let i = 0; i < disables.length; i++) {
+    disables[i].addEventListener(
+      "click",
+      ({
+        target: {
+          dataset: { val },
+        },
+      }) => {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `Fecha ${val} No Disponible`,
+        });
+      }
+    );
+    disables[i].innerText = "X";
+  }
+});
