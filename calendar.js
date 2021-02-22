@@ -2,6 +2,7 @@ const id = () => "_" + Math.random().toString(36).substr(2, 9);
 const currentDate = new Date();
 const date = new Date();
 date.setMonth(date.getMonth() + 1);
+date.setDate(1);
 
 const loadCalendar = () => {
   const calendarEl = document.getElementById("calendarOne");
@@ -11,8 +12,10 @@ const loadCalendar = () => {
     initialView: "dayGridMonth",
     aspectRatio: 2,
     initialDate: date,
+    fixedWeekCount: false,
+    selectable: true,
     validRange: {
-      start: currentDate,
+      start: date,
     },
   });
 
@@ -26,7 +29,8 @@ const loadCalendar = () => {
     selectable: true,
     themeSystem: "bootstrap",
     fixedWeekCount: false,
-    //weekends: false,
+    selectMirror: true,
+    unselectAuto: false,
     select: ({ startStr, endStr }) => {
       let newEvent = {
         id: id(),
@@ -50,7 +54,6 @@ const loadCalendar = () => {
       });
     },
     eventDisplay: "background",
-    eventBackgroundColor: "red",
   });
   calendar.render();
   calendarTwo.render();
