@@ -27,10 +27,29 @@ document.addEventListener("DOMContentLoaded", () => {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: `Fecha ${val} No Disponible`,
+          text: `Date ${val} Not Available`,
         });
       }
     );
-    disables[i].innerText = "X";
   }
+
+  whenInstance.on("secondDateSelect:after", (dateString) => {
+    const selected = document.querySelectorAll(".day.activeRange");
+    console.log(selected);
+    let dates = [];
+    for (let i = 0; i < selected.length; i++) {
+      const {
+        dataset: { val },
+      } = selected[i];
+      dates.push(val);
+    }
+
+    const uniqueDates = new Set(dates);
+    console.log(uniqueDates);
+
+    for (let i = 0; i < selected.length; i++) {
+      selected[i].classList.remove("activeRange");
+      selected[i].classList.add("disable-day");
+    }
+  });
 });

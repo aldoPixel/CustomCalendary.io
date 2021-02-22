@@ -1,4 +1,12 @@
+.day {
+  background-color: #d4f1e1 !important;
+}
+
 .disable-day {
-  background-color: red !important;
+  background-color: #ebc3c6 !important;
   color: black !important;
+}
+
+.disable-day::after {
+  background-color: #ebc3c6 !important;
 }
