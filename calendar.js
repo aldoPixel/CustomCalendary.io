@@ -67,15 +67,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (uniqueDates.size >= 22) {
       if (relativeSize % 7 > 0) {
         $(".last").each((index, element) => {
+          const autoDays = 7 - (relativeSize % 7);
+          const lDate = new Date($(element).attr("data-val"));
+          for (let i = 0; i < autoDays; i++) {
+            lDate.setDate(lDate.getDate() + 1);
+            //console.log(lDate.toISOString().slice(0, 10));
+            $(`.day[data-val="${lDate.toISOString().slice(0, 10)}"]`).addClass(
+              "autocomplete"
+            );
+          }
           $(element)
             .nextAll(".day")
             .slice(0, 7 - (relativeSize % 7))
             .addClass("autocomplete");
         });
-        //.last()
-        //.nextAll(".day")
-        //.slice(0, 7 - (relativeSize % 7))
-        //.addClass("autocomplete");
       }
     }
 
