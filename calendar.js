@@ -1,9 +1,12 @@
+let blockedDays = [];
+
 let whenInstance = new When({
   container: document.getElementById("picker-input"),
   keyboardEvents: true,
   inline: true,
   double: true,
   minDate: new Date(),
+  disabledDates: ["2021-03-02", "2021-03-03"],
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -38,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const uniqueDates = new Set(dates);
-    console.log(uniqueDates.size);
+    console.log(uniqueDates);
 
     //for (let i = 0; i < selected.length; i++) {
     //selected[i].classList.remove("activeRange");
@@ -46,7 +49,19 @@ document.addEventListener("DOMContentLoaded", () => {
     //}
 
     if (uniqueDates.size >= 21) {
-      $(".last").last().nextAll().slice(0, 7).addClass("autocomplete");
+      $(".last").last().nextAll(".day").slice(0, 7).addClass("autocomplete");
     }
+    document.getElementById("check_out").value = `${dateString}`;
+    document.getElementById("n_nights").value = Math.floor(
+      uniqueDates.size / 2
+    );
+  });
+
+  whenInstance.on("firstDateSelect:after", (dateString) => {
+    document.getElementById("check_in").value = `${dateString}`;
+  });
+
+  whenInstance.on("firstDateSelect:before", (dateString) => {
+    $(".autocomplete").removeClass("autocomplete");
   });
 });
