@@ -31,13 +31,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   whenInstance.on("secondDateSelect:after", (dateString) => {
-    const selected = document.querySelectorAll(".day.activeRange");
+    const selected =
+      document.querySelectorAll(".day.activeRange").length > 0
+        ? document.querySelectorAll(".activeRange")
+        : document.querySelectorAll(".active");
+    console.log(selected);
     let dates = [];
     for (let i = 0; i < selected.length; i++) {
       const {
         dataset: { val },
       } = selected[i];
-      dates.push(val);
+      val != undefined && dates.push(val);
     }
 
     const uniqueDates = new Set(dates);
