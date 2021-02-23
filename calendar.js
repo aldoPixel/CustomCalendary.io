@@ -1,16 +1,16 @@
-let blockedDays = [];
-
-let whenInstance = new When({
-  container: document.getElementById("picker-input"),
-  keyboardEvents: true,
-  inline: true,
-  double: true,
-  minDate: new Date(),
-  disabledDates: ["2021-03-02", "2021-03-03"],
-});
-
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
+  let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
+
+  let whenInstance = new When({
+    container: document.getElementById("picker-input"),
+    keyboardEvents: true,
+    inline: true,
+    double: true,
+    minDate: new Date(),
+    disabledDates: blockedDays,
+  });
+
   const disables = document.getElementsByClassName("disable-day");
 
   for (let i = 0; i < disables.length; i++) {
@@ -42,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const uniqueDates = new Set(dates);
     console.log(uniqueDates);
+    blockedDays.push(...uniqueDates);
 
     //for (let i = 0; i < selected.length; i++) {
     //selected[i].classList.remove("activeRange");
@@ -63,5 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   whenInstance.on("firstDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
+  });
+
+  document.getElementById("create_event").addEventListener("click", () => {
+    localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
+    window.location.reload();
   });
 });
