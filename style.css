@@ -10,3 +10,7 @@
 .disable-day::after {
   background-color: #ebc3c6 !important;
 }
+
+.autocomplete {
+  background-color: #ebf8fb !important;
+}

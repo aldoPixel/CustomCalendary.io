@@ -1,9 +1,3 @@
-//const disables = document.getElementsByClassName("disable-day");
-//for (let i = 0; i < disables.length; i++) {
-//disables[i].addEventListener("click", () => alert("No Disponible"));
-//}
-//alert("iniciado");
-
 let whenInstance = new When({
   container: document.getElementById("picker-input"),
   keyboardEvents: true,
@@ -35,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   whenInstance.on("secondDateSelect:after", (dateString) => {
     const selected = document.querySelectorAll(".day.activeRange");
-    console.log(selected);
     let dates = [];
     for (let i = 0; i < selected.length; i++) {
       const {
@@ -45,11 +38,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const uniqueDates = new Set(dates);
-    console.log(uniqueDates);
+    console.log(uniqueDates.size);
 
-    for (let i = 0; i < selected.length; i++) {
-      selected[i].classList.remove("activeRange");
-      selected[i].classList.add("disable-day");
+    //for (let i = 0; i < selected.length; i++) {
+    //selected[i].classList.remove("activeRange");
+    //selected[i].classList.add("disable-day");
+    //}
+
+    if (uniqueDates.size >= 21) {
+      $(".last").last().nextAll().slice(0, 7).addClass("autocomplete");
     }
   });
 });
