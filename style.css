@@ -14,3 +14,18 @@
 .autocomplete {
   background-color: #d4f1e1 !important;
 }
+
+.upgrade {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#picker-input {
+  margin: 50px auto;
+}
+
+.calendar.double {
+  margin: 0 auto;
+}

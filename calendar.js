@@ -45,22 +45,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const uniqueDates = new Set(dates);
-    console.log(uniqueDates);
     blockedDays.push(...uniqueDates);
+    let relativeSize = uniqueDates.size - 1;
 
-    if (uniqueDates.size >= 21) {
-      $(".last").last().nextAll(".day").slice(0, 7).addClass("autocomplete");
+    if (uniqueDates.size >= 22) {
+      if (relativeSize % 7 > 0) {
+        $(".last")
+          .last()
+          .nextAll(".day")
+          .slice(0, 7 - (relativeSize % 7))
+          .addClass("autocomplete");
+      } else {
+        console.log(relativeSize % 7);
+      }
     }
 
-    let relativeSize = uniqueDates.size - 2;
-    if (relativeSize <= 3) {
-      document.getElementById("n_nights").value = 1;
-    } else {
-      relativeSize % 2 == 0
-        ? (document.getElementById("n_nights").value = relativeSize)
-        : (document.getElementById("n_nights").value = relativeSize - 1);
-    }
-    //document.getElementById("check_out").value = `${dateString}`;
+    document.getElementById("check_out").value = `${dateString}`;
+    document.getElementById("n_nights").value = `${relativeSize}`;
     //document.getElementById("n_nights").value = Math.floor(
     //uniqueDates.size / 2
     //);
