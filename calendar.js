@@ -1,3 +1,15 @@
+const hoverLocked = ({
+  target: {
+    dataset: { val },
+  },
+}) => {
+  Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: `Date ${val} Not Available`,
+  });
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
@@ -10,6 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
     minDate: new Date(),
     disabledDates: blockedDays,
   });
+
+  for (let i = 0; i < blockedDays.length; i++) {
+    $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
+  }
 
   const disables = document.getElementsByClassName("disable-day");
 
@@ -62,9 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("check_out").value = `${dateString}`;
     document.getElementById("n_nights").value = `${relativeSize}`;
-    //document.getElementById("n_nights").value = Math.floor(
-    //uniqueDates.size / 2
-    //);
   });
 
   whenInstance.on("firstDateSelect:after", (dateString) => {

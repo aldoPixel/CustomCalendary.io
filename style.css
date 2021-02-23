@@ -3,12 +3,12 @@
 }
 
 .disable-day {
-  background-color: #ebc3c6 !important;
+  background-color: lightgray !important;
   color: black !important;
 }
 
 .disable-day::after {
-  background-color: #ebc3c6 !important;
+  background-color: lightgray !important;
 }
 
 .autocomplete {
@@ -28,4 +28,8 @@
 
 .calendar.double {
   margin: 0 auto;
+}
+
+.disabled-custom {
+  background-color: #ebc3c6 !important;
 }
