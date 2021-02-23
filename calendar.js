@@ -13,7 +13,7 @@ const hoverLocked = ({
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
-
+  let selectedTemp = [];
   let whenInstance = new When({
     container: document.getElementById("picker-input"),
     keyboardEvents: true,
@@ -47,11 +47,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   whenInstance.on("secondDateSelect:after", (dateString) => {
+    selectedTemp = [];
     const selected =
-      document.querySelectorAll(".day.activeRange").length > 0
+      $(".activeRange").length > 0
         ? document.querySelectorAll(".activeRange")
         : document.querySelectorAll(".active");
-    console.log(selected);
     let dates = [];
     for (let i = 0; i < selected.length; i++) {
       const {
@@ -61,18 +61,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const uniqueDates = new Set(dates);
-    blockedDays.push(...uniqueDates);
-    let relativeSize = uniqueDates.size - 1;
+    selectedTemp.push(...uniqueDates);
+    let relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 1;
 
     if (uniqueDates.size >= 22) {
       if (relativeSize % 7 > 0) {
-        $(".last")
-          .last()
-          .nextAll(".day")
-          .slice(0, 7 - (relativeSize % 7))
-          .addClass("autocomplete");
-      } else {
-        console.log(relativeSize % 7);
+        $(".last").each((index, element) => {
+          $(element)
+            .nextAll(".day")
+            .slice(0, 7 - (relativeSize % 7))
+            .addClass("autocomplete");
+        });
+        //.last()
+        //.nextAll(".day")
+        //.slice(0, 7 - (relativeSize % 7))
+        //.addClass("autocomplete");
       }
     }
 
@@ -89,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("create_event").addEventListener("click", () => {
+    blockedDays.push(...selectedTemp);
     localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
     window.location.reload();
   });
