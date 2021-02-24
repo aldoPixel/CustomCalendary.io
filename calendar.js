@@ -27,6 +27,7 @@ const resetDismissValue = () => {
   $(".active").removeClass("active");
   $(".first").removeClass("first");
   $(".last").removeClass("last");
+  $(".autocomplete").removeClass("autocomplete");
   dismissableDaily = true;
   relativeSize = 0;
   selectedTemp = [];
@@ -158,17 +159,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Se vuelve a inicializar el filtrado de fechas unicas para agregar las fechas que se seleccionaron en modo semanal, en caso de no agregar ninguna en modo semanal el filtrado no será modificado
     uniqueDates = new Set(dates);
-
+    // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado a través de la dispersión de ES6
     selectedTemp.push(...uniqueDates);
 
+    // Si el modo es diario
     if (mode === "daily") {
+      // Si el tamaño de noches seleccionadas es mayor a 31
       if (relativeSize > 31) {
+        // Lanza una alerta
         Swal.fire({
           icon: "error",
           title: "Error",
           text: "You Can't Select More Than 31 Nights",
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
+            // Cuando la alerta es cerrada o aceptada limpia el calendario
             dismissableDaily = true;
             resetDismissValue();
           }
@@ -176,7 +181,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Mismo caso unicamente cambiando la condición a si la cantidad de noches seleccionadas es menor al mínimo de noches
     if (relativeSize < minNights) {
+      // Si la ultima fecha de selección no es nula se lanza la alerta
       dateString !== null &&
         Swal.fire({
           icon: "error",
@@ -190,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Mismo caso unicamente cambiando la condición a si excede el máximo de noches
     if (relativeSize > maxNights) {
       dateString !== null &&
         Swal.fire({
@@ -204,52 +212,92 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    document.getElementById("check_out").value = `${dates[dates.length - 1]}`;
-    document.getElementById("code-to").innerText = `${dates[date.length - 1]}`;
+    // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
+    $(".autocomplete").length > 0
+      ? (document.getElementById("check_out").value = `${$(".autocomplete")
+          .last()
+          .attr("data-val")}`.replaceAll("-", "/"))
+      : (document.getElementById("check_out").value = `${dateString}`);
+    // Se busca el elemento con id "code-to" y cambiamos su innerText
+    $(".autocomplete").length > 0
+      ? (document.getElementById("code-to").innerText = `${$(".autocomplete")
+          .last()
+          .attr("data-val")}`.replaceAll("-", "/"))
+      : (document.getElementById("code-to").innerText = `${dateString}`);
+    // Se busca el input con id "n_nights" y cambiamos su valor al número de noches incluyendo el autocompletado
     document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
   });
 
+  // Después de seleccionar nuestra primera fecha
   whenInstance.on("firstDateSelect:after", (dateString) => {
+    // Buscamos el input y el elemento con sus respectivos id y cambiamos su value e innerText a la primera fecha seleccionada
     document.getElementById("check_in").value = `${dateString}`;
     document.getElementById("code-from").innerText = `${dateString}`;
   });
 
+  // Antes de seleccionar nuestra primera fecha
   whenInstance.on("firstDateSelect:before", (dateString) => {
+    // Limpiamos los autocomplete del calendario
     $(".autocomplete").removeClass("autocomplete");
+    // La alerta de error se establece en falso
     dismissableDaily = false;
   });
 
+  // Cuando se presiona el botón con el id "create_event"
   document.getElementById("create_event").addEventListener("click", () => {
+    // En nuestro arreglo almacenado en LocalStorage se agregan todas nuestras fechas seleccionadas
     blockedDays.push(...selectedTemp);
+    // Ese arreglo se almacena en LocalStorage escribiendo o sobre-escribiendo el que teníamos
     localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
+    // Se recarga el navegador (de no hacerlo no se mostrarán las fechas ocupadas)
     window.location.reload();
   });
 
+  // Cuando se navege al siguiente mes
   $(".icon.icon-right-triangle").click(() => {
+    // Buscamos todas las fechas bloqueadas
     for (let i = 0; i < blockedDays.length; i++) {
+      // A todas las fechas ocupadas se les agrega la clase "disabled-custom" para agregarle el fondo rojo
       $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
     }
 
+    // Por cada fecha pasada
     for (let i = 0; i < disables.length; i++) {
+      // Se agrega una función al hacerle click para mandar una alerta
       disables[i].addEventListener("click", clickLockedDays);
     }
 
+    // Si se mostró la alerta de error
     if (dismissableDaily) {
+      // Se limpia el calendario
       resetDismissValue();
     }
   });
 
+  // Cuando se navega al mes anterior
   $(".icon.icon-left-triangle").click(() => {
+    // A todas las fechas ocupadas se les agrega la clase "disabled-custom" para agregarle el fondo rojo
     for (let i = 0; i < blockedDays.length; i++) {
       $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
     }
 
+    // Por cada fecha pasada
     for (let i = 0; i < disables.length; i++) {
       disables[i].addEventListener("click", clickLockedDays);
     }
 
+    // Si se mostró la alerta de error
     if (dismissableDaily) {
+      // Se limpia el mapa
       resetDismissValue();
+    }
+  });
+
+  // Cuando se presiona la tecla "esc"
+  $(document).keyup(function (e) {
+    if (e.key === "Escape") {
+      // Se eliminan los autocompletados
+      $(".autocomplete").removeClass("autocomplete");
     }
   });
 });
