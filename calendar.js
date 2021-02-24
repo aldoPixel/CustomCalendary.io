@@ -100,18 +100,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   whenInstance.on("firstDateSelect:after", (dateString) => {
     document.getElementById("check_in").value = `${dateString}`;
-    $(".dis-tmp").click(() =>
-      Swal.fire({
-        title: "Error",
-        text: "Dates Not Available",
-        icon: "error",
-      })
-    );
   });
 
   whenInstance.on("firstDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
     dismissableDaily = false;
+    $(".dis-tmp").click(() => {
+      Swal.fire({
+        title: "Error",
+        text: "Dates Not Available",
+        icon: "error",
+      }).then((result) => {
+        if (result.isConfirmed || result.isDismissed) {
+          $(".dis-tmp").off("click");
+        }
+      });
+    });
   });
 
   document.getElementById("create_event").addEventListener("click", () => {
