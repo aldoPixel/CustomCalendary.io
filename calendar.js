@@ -10,6 +10,13 @@ const clickLockedDays = ({
   });
 };
 
+const fnTest = () =>
+  Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: "Dates Not Available",
+  });
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
@@ -182,18 +189,18 @@ document.addEventListener("DOMContentLoaded", () => {
   whenInstance.on("firstDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
     dismissableDaily = false;
-    $(".day[data-disabled='true']").off("click");
-    $(".dis-tmp").click(() => {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Date Not Available",
-      }).then((result) => {
-        if (result.isConfirmed || result.isDismissed) {
-          window.location.reload();
-        }
-      });
-    });
+    //$(".day[data-disabled='true']").off("click");
+    //$(".dis-tmp").click(() => {
+    //Swal.fire({
+    //icon: "error",
+    //title: "Error",
+    //text: "Date Not Available",
+    //}).then((result) => {
+    //if (result.isConfirmed || result.isDismissed) {
+    //window.location.reload();
+    //}
+    //});
+    //});
   });
 
   document.getElementById("create_event").addEventListener("click", () => {
