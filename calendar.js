@@ -10,20 +10,34 @@ const clickLockedDays = ({
   });
 };
 
-const fnTest = () =>
+const noSelectDates = () =>
   Swal.fire({
     icon: "error",
     title: "Error",
     text: "Dates Not Available",
   });
 
+const resetDismissValue = () => {
+  $(".activeRange").removeClass("activeRange");
+  $(".active").removeClass("active");
+  $(".first").removeClass("first");
+  $(".last").removeClass("last");
+  dismissableDaily = true;
+  relativeSize = 0;
+  selectedTemp = [];
+  document.getElementById("check_out").value = "";
+  document.getElementById("code-to").innerText = "";
+  document.getElementById("n_nights").value = "";
+  document.getElementById("check_in").value = "";
+  document.getElementById("code-from").innerText = "";
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
   let minNights = localStorage.getItem("minNights") || 0;
-  let maxNights = localStorage.getItem("maxNights") || 99999;
+  let maxNights = localStorage.getItem("maxNights") || 100;
   let dismissableDaily = false;
-  let noVacancy = false;
   const mode = localStorage.getItem("mode")
     ? localStorage.getItem("mode")
     : "weekly";
@@ -46,8 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
   for (let i = 0; i < disables.length; i++) {
     disables[i].addEventListener("click", clickLockedDays);
   }
-
-  whenInstance.on("secondDateSelect:before", (dateString) => {});
 
   whenInstance.on("secondDateSelect:after", (dateString) => {
     selectedTemp = [];
@@ -104,18 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
           text: "You Can't Select More Than 31 Nights",
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
-            $(".activeRange").removeClass("activeRange");
-            $(".active").removeClass("active");
-            $(".first").removeClass("first");
-            $(".last").removeClass("last");
-            dismissableDaily = true;
-            relativeSize = 0;
-            selectedTemp = [];
-            document.getElementById("check_out").value = "";
-            document.getElementById("code-to").innerText = "";
-            document.getElementById("n_nights").value = "";
-            document.getElementById("check_in").value = "";
-            document.getElementById("code-from").innerText = "";
+            resetDismissValue();
           }
         });
       }
@@ -129,18 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
           text: `You must select at least ${minNights} Nights`,
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
-            $(".activeRange").removeClass("activeRange");
-            $(".active").removeClass("active");
-            $(".first").removeClass("first");
-            $(".last").removeClass("last");
-            dismissableDaily = true;
-            relativeSize = 0;
-            selectedTemp = [];
-            document.getElementById("check_out").value = "";
-            document.getElementById("code-to").innerText = "";
-            document.getElementById("n_nights").value = "";
-            document.getElementById("check_in").value = "";
-            document.getElementById("code-from").innerText = "";
+            resetDismissValue();
           }
         });
     }
@@ -153,18 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
           text: `You can't select more than ${maxNights} Nights`,
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
-            $(".activeRange").removeClass("activeRange");
-            $(".active").removeClass("active");
-            $(".first").removeClass("first");
-            $(".last").removeClass("last");
-            dismissableDaily = true;
-            relativeSize = 0;
-            selectedTemp = [];
-            document.getElementById("check_out").value = "";
-            document.getElementById("code-to").innerText = "";
-            document.getElementById("n_nights").value = "";
-            document.getElementById("check_in").value = "";
-            document.getElementById("code-from").innerText = "";
+            resetDismissValue();
           }
         });
     }
@@ -177,30 +156,11 @@ document.addEventListener("DOMContentLoaded", () => {
   whenInstance.on("firstDateSelect:after", (dateString) => {
     document.getElementById("check_in").value = `${dateString}`;
     document.getElementById("code-from").innerText = `${dateString}`;
-    //$(".day[data-disabled='true']").click(() => {
-    //Swal.fire({
-    //icon: "error",
-    //title: "Error",
-    //text: "Date Not Available",
-    //});
-    //});
   });
 
   whenInstance.on("firstDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
     dismissableDaily = false;
-    //$(".day[data-disabled='true']").off("click");
-    //$(".dis-tmp").click(() => {
-    //Swal.fire({
-    //icon: "error",
-    //title: "Error",
-    //text: "Date Not Available",
-    //}).then((result) => {
-    //if (result.isConfirmed || result.isDismissed) {
-    //window.location.reload();
-    //}
-    //});
-    //});
   });
 
   document.getElementById("create_event").addEventListener("click", () => {
@@ -240,12 +200,6 @@ document.addEventListener("DOMContentLoaded", () => {
       $(".active").removeClass("active");
       $(".first").removeClass("first");
       $(".last").removeClass("last");
-    }
-  });
-
-  $(document).on("keydown", function (event) {
-    if (event.key == "Escape") {
-      $(".dis-tmp").off("click");
     }
   });
 });
