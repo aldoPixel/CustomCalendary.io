@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
   let dismissableDaily = false;
+  let noVacancy = false;
   const mode = localStorage.getItem("mode")
     ? localStorage.getItem("mode")
     : "weekly";
@@ -36,6 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
   for (let i = 0; i < disables.length; i++) {
     disables[i].addEventListener("click", clickLockedDays);
   }
+
+  whenInstance.on("secondDateSelect:before", (dateString) => {});
 
   whenInstance.on("secondDateSelect:after", (dateString) => {
     selectedTemp = [];
@@ -100,28 +103,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   whenInstance.on("firstDateSelect:after", (dateString) => {
     document.getElementById("check_in").value = `${dateString}`;
-  });
-
-  whenInstance.on("firstDateSelect:before", (dateString) => {
-    $(".autocomplete").removeClass("autocomplete");
-    dismissableDaily = false;
     $(".dis-tmp").click(() => {
       Swal.fire({
-        title: "Error",
-        text: "Dates Not Available",
         icon: "error",
+        title: "Error",
+        text: "Date Not Available",
       }).then((result) => {
         if (result.isConfirmed || result.isDismissed) {
-          $(".dis-tmp").off("click");
+          window.location.reload();
         }
       });
     });
   });
 
+  whenInstance.on("firstDateSelect:before", (dateString) => {
+    $(".autocomplete").removeClass("autocomplete");
+    dismissableDaily = false;
+  });
+
   document.getElementById("create_event").addEventListener("click", () => {
     blockedDays.push(...selectedTemp);
-    localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
-    window.location.reload();
+    //localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
+    //window.location.reload();
+    whenInstance.trigger("reset:start:end");
   });
 
   $(".icon.icon-right-triangle").click(() => {
@@ -155,6 +159,13 @@ document.addEventListener("DOMContentLoaded", () => {
       $(".active").removeClass("active");
       $(".first").removeClass("first");
       $(".last").removeClass("last");
+    }
+  });
+
+  $(document).on("keydown", function (event) {
+    if (event.key == "Escape") {
+      //alert("Esc key pressed.");
+      $(".dis-tmp").off("click");
     }
   });
 });
