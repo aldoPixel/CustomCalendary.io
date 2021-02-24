@@ -61,6 +61,11 @@ document.addEventListener("DOMContentLoaded", () => {
     disables[i].addEventListener("click", clickLockedDays);
   }
 
+  whenInstance.on("init", (whenInstance) => {
+    console.log(whenInstance);
+    console.log("Hello");
+  });
+
   whenInstance.on("secondDateSelect:after", (dateString) => {
     selectedTemp = [];
     const selected =
@@ -75,15 +80,15 @@ document.addEventListener("DOMContentLoaded", () => {
       val != undefined && dates.push(val);
     }
 
-    const uniqueDates = new Set(dates);
-    selectedTemp.push(...uniqueDates);
+    let uniqueDates = new Set(dates);
     let relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 1;
+    let autoDays = 0;
 
     if (mode === "weekly") {
       if (uniqueDates.size >= 22) {
         if (relativeSize % 7 > 0) {
           $(".last").each((index, element) => {
-            let autoDays = 7 - (relativeSize % 7);
+            autoDays = 7 - (relativeSize % 7);
             const lDate = new Date($(element).attr("data-val"));
             const isLeap = new Date(lDate.getFullYear(), 1, 29).getMonth() == 1;
             if (
@@ -98,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
               $(
                 `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
               ).addClass("autocomplete");
+              dates.push(lDate.toISOString().slice(0, 10));
             }
             $(element)
               .nextAll(".day")
@@ -108,6 +114,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    uniqueDates = new Set(dates);
+    console.log(uniqueDates);
+
+    selectedTemp.push(...uniqueDates);
+
     if (mode === "daily") {
       if (relativeSize > 31) {
         Swal.fire({
@@ -116,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
           text: "You Can't Select More Than 31 Nights",
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
+            dismissableDaily = true;
             resetDismissValue();
           }
         });
@@ -130,6 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
           text: `You must select at least ${minNights} Nights`,
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
+            dismissableDaily = true;
             resetDismissValue();
           }
         });
@@ -143,6 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
           text: `You can't select more than ${maxNights} Nights`,
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
+            dismissableDaily = true;
             resetDismissValue();
           }
         });
@@ -150,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("check_out").value = `${dateString}`;
     document.getElementById("code-to").innerText = `${dateString}`;
-    document.getElementById("n_nights").value = `${relativeSize}`;
+    document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
   });
 
   whenInstance.on("firstDateSelect:after", (dateString) => {
@@ -178,11 +192,8 @@ document.addEventListener("DOMContentLoaded", () => {
       disables[i].addEventListener("click", clickLockedDays);
     }
 
-    if (mode === "daily" && dismissableDaily) {
-      $(".activeRange").removeClass("activeRange");
-      $(".active").removeClass("active");
-      $(".first").removeClass("first");
-      $(".last").removeClass("last");
+    if (dismissableDaily) {
+      resetDismissValue();
     }
   });
 
@@ -195,11 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
       disables[i].addEventListener("click", clickLockedDays);
     }
 
-    if (mode === "daily" && dismissableDaily) {
-      $(".activeRange").removeClass("activeRange");
-      $(".active").removeClass("active");
-      $(".first").removeClass("first");
-      $(".last").removeClass("last");
+    if (dismissableDaily) {
+      resetDismissValue();
     }
   });
 });
