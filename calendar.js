@@ -1,4 +1,4 @@
-const hoverLocked = ({
+const clickLockedDays = ({
   target: {
     dataset: { val },
   },
@@ -30,20 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const disables = document.getElementsByClassName("disable-day");
 
   for (let i = 0; i < disables.length; i++) {
-    disables[i].addEventListener(
-      "click",
-      ({
-        target: {
-          dataset: { val },
-        },
-      }) => {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: `Date ${val} Not Available`,
-        });
-      }
-    );
+    disables[i].addEventListener("click", clickLockedDays);
   }
 
   whenInstance.on("secondDateSelect:after", (dateString) => {
@@ -71,15 +58,14 @@ document.addEventListener("DOMContentLoaded", () => {
           const lDate = new Date($(element).attr("data-val"));
           for (let i = 0; i < autoDays; i++) {
             lDate.setDate(lDate.getDate() + 1);
-            //console.log(lDate.toISOString().slice(0, 10));
             $(`.day[data-val="${lDate.toISOString().slice(0, 10)}"]`).addClass(
               "autocomplete"
             );
           }
-          //$(element)
-          //.nextAll(".day")
-          //.slice(0, 7 - (relativeSize % 7))
-          //.addClass("autocomplete");
+          $(element)
+            .nextAll(".day")
+            .slice(0, autoDays)
+            .addClass("autocomplete");
         });
       }
     }
@@ -115,20 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     for (let i = 0; i < disables.length; i++) {
-      disables[i].addEventListener(
-        "click",
-        ({
-          target: {
-            dataset: { val },
-          },
-        }) => {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: `Date ${val} Not Available`,
-          });
-        }
-      );
+      disables[i].addEventListener("click", clickLockedDays);
     }
   });
 
@@ -138,20 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     for (let i = 0; i < disables.length; i++) {
-      disables[i].addEventListener(
-        "click",
-        ({
-          target: {
-            dataset: { val },
-          },
-        }) => {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: `Date ${val} Not Available`,
-          });
-        }
-      );
+      disables[i].addEventListener("click", clickLockedDays);
     }
   });
 });
