@@ -13,6 +13,10 @@ const clickLockedDays = ({
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
+  let dismissableDaily = false;
+  const mode = localStorage.getItem("mode")
+    ? localStorage.getItem("mode")
+    : "weekly";
   let selectedTemp = [];
   let whenInstance = new When({
     container: document.getElementById("picker-input"),
@@ -51,21 +55,41 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedTemp.push(...uniqueDates);
     let relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 1;
 
-    if (uniqueDates.size >= 22) {
-      if (relativeSize % 7 > 0) {
-        $(".last").each((index, element) => {
-          const autoDays = 7 - (relativeSize % 7);
-          const lDate = new Date($(element).attr("data-val"));
-          for (let i = 0; i < autoDays; i++) {
-            lDate.setDate(lDate.getDate() + 1);
-            $(`.day[data-val="${lDate.toISOString().slice(0, 10)}"]`).addClass(
-              "autocomplete"
-            );
+    if (mode === "weekly") {
+      if (uniqueDates.size >= 22) {
+        if (relativeSize % 7 > 0) {
+          $(".last").each((index, element) => {
+            const autoDays = 7 - (relativeSize % 7);
+            const lDate = new Date($(element).attr("data-val"));
+            for (let i = 0; i < autoDays; i++) {
+              lDate.setDate(lDate.getDate() + 1);
+              $(
+                `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+              ).addClass("autocomplete");
+            }
+            $(element)
+              .nextAll(".day")
+              .slice(0, autoDays)
+              .addClass("autocomplete");
+          });
+        }
+      }
+    }
+
+    if (mode === "daily") {
+      if (uniqueDates.size > 31) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "You Can't Select More Than 31 Days",
+        }).then((result) => {
+          if (result.isConfirmed || result.isDismissed) {
+            $(".activeRange").removeClass("activeRange");
+            $(".active").removeClass("active");
+            $(".first").removeClass("first");
+            $(".last").removeClass("last");
+            dismissableDaily = true;
           }
-          $(element)
-            .nextAll(".day")
-            .slice(0, autoDays)
-            .addClass("autocomplete");
         });
       }
     }
@@ -87,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   whenInstance.on("firstDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
+    dismissableDaily = false;
   });
 
   document.getElementById("create_event").addEventListener("click", () => {
@@ -103,6 +128,13 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < disables.length; i++) {
       disables[i].addEventListener("click", clickLockedDays);
     }
+
+    if (mode === "daily" && dismissableDaily) {
+      $(".activeRange").removeClass("activeRange");
+      $(".active").removeClass("active");
+      $(".first").removeClass("first");
+      $(".last").removeClass("last");
+    }
   });
 
   $(".icon.icon-left-triangle").click(() => {
@@ -112,6 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (let i = 0; i < disables.length; i++) {
       disables[i].addEventListener("click", clickLockedDays);
+    }
+
+    if (mode === "daily" && dismissableDaily) {
+      $(".activeRange").removeClass("activeRange");
+      $(".active").removeClass("active");
+      $(".first").removeClass("first");
+      $(".last").removeClass("last");
     }
   });
 });
