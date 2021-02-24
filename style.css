@@ -33,3 +33,17 @@
 .disabled-custom {
   background-color: #ebc3c6 !important;
 }
+
+.code-span,
+.special-code {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.custom-container {
+  border: 2px solid #000;
+}
+
+.special-code {
+  color: blue;
+}

@@ -64,8 +64,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (uniqueDates.size >= 22) {
         if (relativeSize % 7 > 0) {
           $(".last").each((index, element) => {
-            const autoDays = 7 - (relativeSize % 7);
+            let autoDays = 7 - (relativeSize % 7);
             const lDate = new Date($(element).attr("data-val"));
+            const isLeap = new Date(lDate.getFullYear(), 1, 29).getMonth() == 1;
+            if (
+              !isLeap &&
+              lDate.getMonth() === 2 &&
+              (lDate.getDate() === 29 || lDate.getDate() === 30)
+            ) {
+              autoDays += 1;
+            }
             for (let i = 0; i < autoDays; i++) {
               lDate.setDate(lDate.getDate() + 1);
               $(
@@ -94,6 +102,13 @@ document.addEventListener("DOMContentLoaded", () => {
             $(".first").removeClass("first");
             $(".last").removeClass("last");
             dismissableDaily = true;
+            relativeSize = 0;
+            selectedTemp = [];
+            document.getElementById("check_out").value = "";
+            document.getElementById("code-to").innerText = "";
+            document.getElementById("n_nights").value = "";
+            document.getElementById("check_in").value = "";
+            document.getElementById("code-from").innerText = "";
           }
         });
       }
@@ -112,6 +127,13 @@ document.addEventListener("DOMContentLoaded", () => {
             $(".first").removeClass("first");
             $(".last").removeClass("last");
             dismissableDaily = true;
+            relativeSize = 0;
+            selectedTemp = [];
+            document.getElementById("check_out").value = "";
+            document.getElementById("code-to").innerText = "";
+            document.getElementById("n_nights").value = "";
+            document.getElementById("check_in").value = "";
+            document.getElementById("code-from").innerText = "";
           }
         });
     }
@@ -129,16 +151,38 @@ document.addEventListener("DOMContentLoaded", () => {
             $(".first").removeClass("first");
             $(".last").removeClass("last");
             dismissableDaily = true;
+            relativeSize = 0;
+            selectedTemp = [];
+            document.getElementById("check_out").value = "";
+            document.getElementById("code-to").innerText = "";
+            document.getElementById("n_nights").value = "";
+            document.getElementById("check_in").value = "";
+            document.getElementById("code-from").innerText = "";
           }
         });
     }
 
     document.getElementById("check_out").value = `${dateString}`;
+    document.getElementById("code-to").innerText = `${dateString}`;
     document.getElementById("n_nights").value = `${relativeSize}`;
   });
 
   whenInstance.on("firstDateSelect:after", (dateString) => {
     document.getElementById("check_in").value = `${dateString}`;
+    document.getElementById("code-from").innerText = `${dateString}`;
+    //$(".day[data-disabled='true']").click(() => {
+    //Swal.fire({
+    //icon: "error",
+    //title: "Error",
+    //text: "Date Not Available",
+    //});
+    //});
+  });
+
+  whenInstance.on("firstDateSelect:before", (dateString) => {
+    $(".autocomplete").removeClass("autocomplete");
+    dismissableDaily = false;
+    $(".day[data-disabled='true']").off("click");
     $(".dis-tmp").click(() => {
       Swal.fire({
         icon: "error",
@@ -150,11 +194,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     });
-  });
-
-  whenInstance.on("firstDateSelect:before", (dateString) => {
-    $(".autocomplete").removeClass("autocomplete");
-    dismissableDaily = false;
   });
 
   document.getElementById("create_event").addEventListener("click", () => {
