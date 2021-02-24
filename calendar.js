@@ -76,10 +76,10 @@ document.addEventListener("DOMContentLoaded", () => {
               "autocomplete"
             );
           }
-          $(element)
-            .nextAll(".day")
-            .slice(0, 7 - (relativeSize % 7))
-            .addClass("autocomplete");
+          //$(element)
+          //.nextAll(".day")
+          //.slice(0, 7 - (relativeSize % 7))
+          //.addClass("autocomplete");
         });
       }
     }
@@ -90,6 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   whenInstance.on("firstDateSelect:after", (dateString) => {
     document.getElementById("check_in").value = `${dateString}`;
+    $(".dis-tmp").click(() =>
+      Swal.fire({
+        title: "Error",
+        text: "Dates Not Available",
+        icon: "error",
+      })
+    );
   });
 
   whenInstance.on("firstDateSelect:before", (dateString) => {
@@ -100,5 +107,51 @@ document.addEventListener("DOMContentLoaded", () => {
     blockedDays.push(...selectedTemp);
     localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
     window.location.reload();
+  });
+
+  $(".icon.icon-right-triangle").click(() => {
+    for (let i = 0; i < blockedDays.length; i++) {
+      $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
+    }
+
+    for (let i = 0; i < disables.length; i++) {
+      disables[i].addEventListener(
+        "click",
+        ({
+          target: {
+            dataset: { val },
+          },
+        }) => {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: `Date ${val} Not Available`,
+          });
+        }
+      );
+    }
+  });
+
+  $(".icon.icon-left-triangle").click(() => {
+    for (let i = 0; i < blockedDays.length; i++) {
+      $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
+    }
+
+    for (let i = 0; i < disables.length; i++) {
+      disables[i].addEventListener(
+        "click",
+        ({
+          target: {
+            dataset: { val },
+          },
+        }) => {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: `Date ${val} Not Available`,
+          });
+        }
+      );
+    }
   });
 });
