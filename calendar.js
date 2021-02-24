@@ -13,6 +13,8 @@ const clickLockedDays = ({
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
+  let minNights = localStorage.getItem("minNights") || 0;
+  let maxNights = localStorage.getItem("maxNights") || 99999;
   let dismissableDaily = false;
   let noVacancy = false;
   const mode = localStorage.getItem("mode")
@@ -80,11 +82,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (mode === "daily") {
-      if (uniqueDates.size > 31) {
+      if (relativeSize > 31) {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "You Can't Select More Than 31 Days",
+          text: "You Can't Select More Than 31 Nights",
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
             $(".activeRange").removeClass("activeRange");
@@ -95,6 +97,40 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
       }
+    }
+
+    if (relativeSize < minNights) {
+      dateString !== null &&
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `You must select at least ${minNights} Nights`,
+        }).then((result) => {
+          if (result.isConfirmed || result.isDismissed) {
+            $(".activeRange").removeClass("activeRange");
+            $(".active").removeClass("active");
+            $(".first").removeClass("first");
+            $(".last").removeClass("last");
+            dismissableDaily = true;
+          }
+        });
+    }
+
+    if (relativeSize > maxNights) {
+      dateString !== null &&
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `You can't select more than ${maxNights} Nights`,
+        }).then((result) => {
+          if (result.isConfirmed || result.isDismissed) {
+            $(".activeRange").removeClass("activeRange");
+            $(".active").removeClass("active");
+            $(".first").removeClass("first");
+            $(".last").removeClass("last");
+            dismissableDaily = true;
+          }
+        });
     }
 
     document.getElementById("check_out").value = `${dateString}`;
@@ -123,9 +159,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("create_event").addEventListener("click", () => {
     blockedDays.push(...selectedTemp);
-    //localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
-    //window.location.reload();
-    whenInstance.trigger("reset:start:end");
+    localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
+    window.location.reload();
   });
 
   $(".icon.icon-right-triangle").click(() => {
@@ -164,7 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   $(document).on("keydown", function (event) {
     if (event.key == "Escape") {
-      //alert("Esc key pressed.");
       $(".dis-tmp").off("click");
     }
   });
