@@ -33,7 +33,7 @@ const resetDismissValue = () => {
   selectedTemp = [];
   document.getElementById("check_out").value = "";
   document.getElementById("code-to").innerText = "";
-  document.getElementById("n_nights").value = "";
+  document.getElementById("n_nights").value = 0;
   document.getElementById("check_in").value = "";
   document.getElementById("code-from").innerText = "";
 };
@@ -45,7 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Este arreglo extrae las fechas ocupadas del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas ocupadas
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
   // Esta variable extrae el mínimo de noches del LocalStorage, en caso de no existir en LocalStorage se inicializa en 0
-  let minNights = localStorage.getItem("minNights") || 0;
+  //let minNights = localStorage.getItem("minNights") || 1;
+  let minNights = 1;
   // Esta variable extrae el máximo de noches del LocalStorage, en caso de no existir en LocalStorage se inicializa en 0
   let maxNights = localStorage.getItem("maxNights") || 100;
   // La varibale que va a disparar nuestras alertas se inicializa como false
@@ -60,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let whenInstance = new When({
     // Seleccionamos el div que contendrá nuestro calendario
     container: document.getElementById("picker-input"),
-    keyboardEvents: true,
+    //keyboardEvents: true,
     // Establecemos que sea siempre visible
     inline: true,
     // Establecemos que se muestren dos meses por página
@@ -110,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Se filtran las fechas para evitar duplicados
     let uniqueDates = new Set(dates);
     // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
-    let relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 1;
+    let relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
     // Se inicializa una variable para los días de autocompletado en modo semanal
     let autoDays = 0;
 
@@ -180,6 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+    console.log(relativeSize);
 
     // Mismo caso unicamente cambiando la condición a si la cantidad de noches seleccionadas es menor al mínimo de noches
     if (relativeSize < minNights) {
@@ -233,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Buscamos el input y el elemento con sus respectivos id y cambiamos su value e innerText a la primera fecha seleccionada
     document.getElementById("check_in").value = `${dateString}`;
     document.getElementById("code-from").innerText = `${dateString}`;
+    console.log(dateString);
   });
 
   // Antes de seleccionar nuestra primera fecha
@@ -299,5 +302,28 @@ document.addEventListener("DOMContentLoaded", () => {
       // Se eliminan los autocompletados
       $(".autocomplete").removeClass("autocomplete");
     }
+  });
+
+  $("#n_nights").change(() => {
+    //console.log($("#check_in").val());
+    $(".activeRange").removeClass("activeRange");
+    const nDate = new Date($("#check_in").val());
+    nDate.setDate(nDate.getDate() + parseInt($("#n_nights").val()));
+    const isDisabled = $(
+      `.day[data-val="${nDate.toISOString().slice(0, 10)}"]`
+    ).hasClass("disable-day");
+
+    if (isDisabled) {
+      noSelectDates();
+      $("#n_nights").val(0);
+      $("#n_nights").blur();
+      whenInstance.trigger("reset:start:end");
+      resetDismissValue();
+    } else {
+      whenInstance.trigger("change:endDate", nDate);
+    }
+
+    //? noSelectDates()
+    //: whenInstance.trigger("change:endDate", nDate);
   });
 });
