@@ -21,6 +21,19 @@ const noSelectDates = () =>
     text: "Dates Not Available",
   });
 
+// Esta función le da formato "YYYY/MM/DD" a la fecha
+const formatDate = (date) => {
+  let d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return [year, month, day].join("/");
+};
+
 // Esta función de usa para limpiar el calendario de marcadores una vez que se cancele la selección o salte una alerta, se hace uso de Jquery y JS DOM
 const resetDismissValue = () => {
   $(".activeRange").removeClass("activeRange");
@@ -44,17 +57,18 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
   // Este arreglo extrae las fechas ocupadas del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas ocupadas
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
-  // Esta variable extrae el mínimo de noches del LocalStorage, en caso de no existir en LocalStorage se inicializa en 0
-  //let minNights = localStorage.getItem("minNights") || 1;
+  // Esta variable establece el minimo de noches, en este caso 1
   let minNights = 1;
-  // Esta variable extrae el máximo de noches del LocalStorage, en caso de no existir en LocalStorage se inicializa en 0
-  let maxNights = localStorage.getItem("maxNights") || 100;
+  // Esta variable establece el máximo de noches, en este caso 100
+  let maxNights = 100;
   // La varibale que va a disparar nuestras alertas se inicializa como false
   let dismissableDaily = false;
-  // Se extrae el modo del LocalStorage, en caso de no existir en LocalStorage se establece en modo "weekly" (semanal)
-  const mode = localStorage.getItem("mode")
-    ? localStorage.getItem("mode")
-    : "weekly";
+  // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
+  let setWeeklyComplete = true;
+  // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly") o diario ("daily")
+  let mode = "weekly";
+  // Esta variable establece el número de semanas
+  let nWeeks = 0;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
   let selectedTemp = [];
   // Se crea nuestro calendario
@@ -150,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
               $(
                 `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
               ).addClass("autocomplete");
-              console.log(lDate.toISOString().slice(0, 10));
               // Agregamos esa fecha a nuestro arreglo de fechas seleccionadas
               dates.push(lDate.toISOString().slice(0, 10));
             }
@@ -161,6 +174,9 @@ document.addEventListener("DOMContentLoaded", () => {
               .addClass("autocomplete");
           });
         }
+        // Se saca el número de semanas
+        nWeeks = Math.round((relativeSize + autoDays) / 7);
+        console.log(nWeeks);
       }
     }
 
@@ -187,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
-    console.log(relativeSize);
 
     // Mismo caso unicamente cambiando la condición a si la cantidad de noches seleccionadas es menor al mínimo de noches
     if (relativeSize < minNights) {
@@ -222,28 +237,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
     $(".autocomplete").length > 0
-      ? (document.getElementById("check_out").value = `${$(".autocomplete")
-          .last()
-          .attr("data-val")}`.replaceAll("-", "/"))
-      : (document.getElementById(
-          "check_out"
-        ).value = `${dateString}`.replaceAll("-", "/"));
+      ? (document.getElementById("check_out").value = `${formatDate(
+          $(".autocomplete").last().attr("data-val")
+        )}`)
+      : (document.getElementById("check_out").value = `${formatDate(
+          dateString
+        )}`);
     // Se busca el elemento con id "code-to" y cambiamos su innerText
     $(".autocomplete").length > 0
-      ? (document.getElementById("code-to").innerText = `${$(".autocomplete")
-          .last()
-          .attr("data-val")}`.replaceAll("-", "/"))
-      : (document.getElementById("code-to").innerText = `${dateString}`);
+      ? (document.getElementById("code-to").innerText = `${formatDate(
+          $(".autocomplete").last().attr("data-val")
+        )}`)
+      : (document.getElementById("code-to").innerText = `${formatDate(
+          dateString
+        )}`);
     // Se busca el input con id "n_nights" y cambiamos su valor al número de noches incluyendo el autocompletado
     //document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
+    // Si se seleccionaron los días usando el calendario se coloca en el selector de noches por defecto el número de noches
+    if (setWeeklyComplete) {
+      document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
+    }
   });
 
   // Después de seleccionar nuestra primera fecha
   whenInstance.on("firstDateSelect:after", (dateString) => {
     // Buscamos el input y el elemento con sus respectivos id y cambiamos su value e innerText a la primera fecha seleccionada
-    document.getElementById("check_in").value = `${dateString}`;
-    document.getElementById("code-from").innerText = `${dateString}`;
-    console.log(dateString);
+    document.getElementById("check_in").value = `${formatDate(dateString)}`;
+    document.getElementById("code-from").innerText = `${formatDate(
+      dateString
+    )}`;
+    // Si hacemos selección por calendario se establece en true
+    setWeeklyComplete = true;
   });
 
   // Antes de seleccionar nuestra primera fecha
@@ -312,23 +336,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Cuando interactuamos con el selector de noches
   $("#n_nights").change(() => {
-    //console.log($("#check_in").val());
+    // Se inhabilita el llenado de noches en el selector
+    setWeeklyComplete = false;
+    // Se limpian clases que ya no utilizamos
     $(".activeRange").removeClass("activeRange");
     $(".autocomplete").removeClass("autocomplete");
+    // Se inicialia una variable Date con el valor de nuestra primera fecha seleccionada la cuál se extrae del textbox de check_in
     const nDate = new Date($("#check_in").val());
+    // Se le agrega a esa fecha el valor de noches seleccionadas
     nDate.setDate(nDate.getDate() + parseInt($("#n_nights").val()));
+    // Se crea una variable booleana para determinar si la fecha que estamos seleccionando está disponible
     const isDisabled = $(
       `.day[data-val="${nDate.toISOString().slice(0, 10)}"]`
     ).hasClass("disable-day");
 
+    // Si esa fecha no está disponible
     if (isDisabled) {
+      // Se lanza la alerta de fecha no disponible
       noSelectDates();
-      $("#n_nights").val(0);
+      // Se desenfoca el input de noches
       $("#n_nights").blur();
+      // Se resetea la selección
       whenInstance.trigger("reset:start:end");
+      // Se limpia el calendario
       resetDismissValue();
     } else {
+      // Si la fecha está disponible se realiza la selección
       whenInstance.trigger("change:endDate", nDate);
     }
 
