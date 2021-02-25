@@ -87,8 +87,13 @@ document.addEventListener("DOMContentLoaded", () => {
     disables[i].addEventListener("click", clickLockedDays);
   }
 
+  whenInstance.on("secondDateSelect:before", (dateString) => {
+    $(".autocomplete").removeClass("autocomplete");
+  });
+
   // Despues de seleccionar un rango de fechas se ejecuta una función que pasa como parametro la ultima fecha del rango
   whenInstance.on("secondDateSelect:after", (dateString) => {
+    $(".autocomplete").removeClass("autocomplete");
     // Inicializamos nuestra selección temporal como vacía ya que de no hacerlo no limpiara nuestra selección y agregará días que no deseamos sean agregados como ocupados
     selectedTemp = [];
     // Inicializamos una constante si hay mas de una fecha seleccionada seleccionara todos los días con clase "activeRange", si solo se selecciona un día se buscarán todos los días con clase "active"
@@ -122,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Si faltan días para completar la semana
         if (relativeSize % 7 > 0) {
           // Buscamos la ultima fecha que seleccionamos y ejecutamos una función
-          $(".last").each((index, element) => {
+          $(".activeRange.last").each((index, element) => {
             // Los días que faltan para completar la semana se obtienen
             autoDays = 7 - (relativeSize % 7);
             // Se obtiene la fecha de cada uno de los días restantes para completar la semana
@@ -145,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
               $(
                 `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
               ).addClass("autocomplete");
+              console.log(lDate.toISOString().slice(0, 10));
               // Agregamos esa fecha a nuestro arreglo de fechas seleccionadas
               dates.push(lDate.toISOString().slice(0, 10));
             }
@@ -219,7 +225,9 @@ document.addEventListener("DOMContentLoaded", () => {
       ? (document.getElementById("check_out").value = `${$(".autocomplete")
           .last()
           .attr("data-val")}`.replaceAll("-", "/"))
-      : (document.getElementById("check_out").value = `${dateString}`);
+      : (document.getElementById(
+          "check_out"
+        ).value = `${dateString}`.replaceAll("-", "/"));
     // Se busca el elemento con id "code-to" y cambiamos su innerText
     $(".autocomplete").length > 0
       ? (document.getElementById("code-to").innerText = `${$(".autocomplete")
@@ -227,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .attr("data-val")}`.replaceAll("-", "/"))
       : (document.getElementById("code-to").innerText = `${dateString}`);
     // Se busca el input con id "n_nights" y cambiamos su valor al número de noches incluyendo el autocompletado
-    document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
+    //document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
   });
 
   // Después de seleccionar nuestra primera fecha
@@ -307,6 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#n_nights").change(() => {
     //console.log($("#check_in").val());
     $(".activeRange").removeClass("activeRange");
+    $(".autocomplete").removeClass("autocomplete");
     const nDate = new Date($("#check_in").val());
     nDate.setDate(nDate.getDate() + parseInt($("#n_nights").val()));
     const isDisabled = $(
