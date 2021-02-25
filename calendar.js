@@ -220,6 +220,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    if (relativeSize < 1) {
+      dateString !== null &&
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "You must select at least one night",
+        }).then((result) => {
+          if (result.isConfirmed || result.isDismissed) {
+            dismissableDaily = true;
+            resetDismissValue();
+          }
+        });
+    }
+
     // Mismo caso unicamente cambiando la condición a si excede el máximo de noches
     if (relativeSize > maxNights) {
       dateString !== null &&
