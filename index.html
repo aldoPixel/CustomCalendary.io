@@ -26,12 +26,22 @@
     <div class="container">
       <div class="upgrade">
         <div></div>
-        <h1>Daily Vacation</h1>
+        <h1 class="upgrade__title">Daily Vacation</h1>
 
-        <button class="btn btn-info" id="create_event">Create Event</button>
+        <button class="btn btn-success" id="create_event">Create Event</button>
         <!--<a href="./event.html" class="btn btn-success">UPGRADE</a>-->
       </div>
-      <div class="upgrade">
+      <div class="serial-address">
+        <div class="spanInfo">
+          <span class="info-tag">Serial Number: </span>
+          <span class="info-result">20015000</span>
+        </div>
+        <div class="spanInfo">
+          <span class="info-tag">Address: </span>
+          <span class="info-result">123 Main Street</span>
+        </div>
+      </div>
+      <div>
         <div class="form-inline">
           <div class="form-group">
             <label for="check_in"><span>Check In:</span></label>
@@ -67,7 +77,7 @@
       </div>
       <div id="picker-input"></div>
       <div class="row">
-        <div class="col-md-5">
+        <div class="col col-md-5"> 
           <h4>RECORD THE APPOINTMENT (OPTIONAL)</h4>
           <form>
             <div class="form-group">
@@ -102,15 +112,33 @@
               />
             </div>
           </form>
+          <button class="btn btn-success btn-lg text-center align-center">CANCEL</button>
         </div>
-        <div class="col-md-7 text-center custom-container">
-          <h4>Below is the code that will work every day from:</h4>
-          <span class="code-span"
-            ><span id="code-from">0000/00/00</span> to
-            <span id="code-to">0000/00/00</span></span
-          >
-          <br />
-          <span id="special-code" class="special-code">0000</span>
+        <div class="col col-md-7 text-center">
+          <div class="mb">
+            <button class="btn btn-success btn-lg mb">GET CODE</button>
+          </div>
+          <div class="custom-container">
+            <h4>Below is the code that will work every day from:</h4>
+            <span class="code-span"
+              ><span id="code-from">0000/00/00</span> to
+              <span id="code-to">0000/00/00</span></span
+            >
+            <br />
+            <span id="special-code" class="special-code">0000</span>
+            <div class="row">
+              <div class="col-md-4 text-left pl-2">
+                <input type="checkbox" name="check_text" id="check_text"> Text <br>
+                <input type="checkbox" name="check_text" id="check_text"> Email
+              </div>
+              <div class="col-md-4">
+                <button class="btn btn-success btn-lg">Send</button>
+              </div>
+            </div>
+          </div>
+            <div class="text-right mt">
+              <button class="btn btn-success btn-lg">DONE</button>
+            </div>
         </div>
       </div>
     </div>

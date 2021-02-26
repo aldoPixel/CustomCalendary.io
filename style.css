@@ -1,3 +1,9 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .day {
   background-color: #ebf8fb !important;
 }
@@ -15,23 +21,44 @@
   background-color: #d4f1e1 !important;
 }
 
-.upgrade {
+.serial-address {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
   align-items: center;
+  margin: 20px 0;
+}
+
+.align-center {
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.upgrade {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.upgrade__title {
+  margin-right: 20px;
 }
 
 #picker-input {
-  margin: 50px auto;
-}
-
-.calendar.double {
-  margin: 0 auto;
+  margin: 50px 0px;
 }
 
 .disabled-custom {
   background-color: #ebc3c6 !important;
+}
+
+.mb {
+  margin-bottom: 20px;
+}
+
+.mt {
+  margin-top: 20px;
 }
 
 .code-span,
@@ -41,9 +68,22 @@
 }
 
 .custom-container {
+  padding: 30px;
   border: 2px solid #000;
 }
 
 .special-code {
+  color: blue;
+}
+
+.spanInfo {
+  font-size: 20px;
+}
+
+.spanInfo .info-tag {
+  font-weight: bold;
+}
+
+.spanInfo .info-result {
   color: blue;
 }
