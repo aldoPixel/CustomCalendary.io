@@ -21,6 +21,10 @@
   background-color: #d4f1e1 !important;
 }
 
+.disabled-custom {
+  background-color: #ebc3c6 !important;
+}
+
 .serial-address {
   display: flex;
   flex-flow: row wrap;
@@ -47,10 +51,6 @@
 
 #picker-input {
   margin: 50px 0px;
-}
-
-.disabled-custom {
-  background-color: #ebc3c6 !important;
 }
 
 .mb {
