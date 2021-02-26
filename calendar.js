@@ -134,8 +134,46 @@ document.addEventListener("DOMContentLoaded", () => {
     // Se inicializa una variable para los días de autocompletado en modo semanal
     let autoDays = 0;
 
-    // Si el modo de selección es semanal
     if (mode === "weekly") {
+      if (relativeSize % 7 > 0) {
+        // Buscamos la ultima fecha que seleccionamos y ejecutamos una función
+        $(".activeRange.last").each((index, element) => {
+          // Los días que faltan para completar la semana se obtienen
+          autoDays = 7 - (relativeSize % 7);
+          // Se obtiene la fecha de cada uno de los días restantes para completar la semana
+          const lDate = new Date($(element).attr("data-val"));
+          // Creamos una condicional para verificar si febrero tiene 28 o 29 días (Esto es necesario ya que de no hacer esta verificación un bug se hace presente)
+          const isLeap = new Date(lDate.getFullYear(), 1, 29).getMonth() == 1;
+          // Si Febrero tiene 28 días además la ultima fecha fue 29 o 30 de Marzo se aumenta un día a nuestro autocompletado (es la solución del bug)
+          if (
+            !isLeap &&
+            lDate.getMonth() === 2 &&
+            (lDate.getDate() === 29 || lDate.getDate() === 30)
+          ) {
+            autoDays += 1;
+          }
+          // Por cada día en el rango de días que necesitamos para completar la semana
+          for (let i = 0; i < autoDays; i++) {
+            // Se aumenta en un día la fecha del ultimo día seleccionado
+            lDate.setDate(lDate.getDate() + 1);
+            // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
+            $(`.day[data-val="${lDate.toISOString().slice(0, 10)}"]`).addClass(
+              "autocomplete"
+            );
+            // Agregamos esa fecha a nuestro arreglo de fechas seleccionadas
+            dates.push(lDate.toISOString().slice(0, 10));
+          }
+          // Como solución a otro bug es necesario buscar todos los días después de nuestra ultima fecha seleccionada y agregar la clase "autocomplete" a los días necesarios para completar la semana
+          $(element)
+            .nextAll(".day")
+            .slice(0, autoDays)
+            .addClass("autocomplete");
+        });
+      }
+    }
+
+    // Si el modo de selección es semanal
+    if (mode === "hybrid") {
       // Si hay mas de 21 noches seleccionadas
       if (uniqueDates.size >= 22) {
         // Si faltan días para completar la semana
