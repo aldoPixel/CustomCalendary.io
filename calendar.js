@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let dismissableDaily = false;
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
   let setWeeklyComplete = true;
-  // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly") o diario ("daily")
+  // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly"), diario ("daily") o hibrido ("hybrid")
   let mode = "weekly";
   // Esta variable establece el número de semanas
   let nWeeks = 0;
@@ -134,6 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Se inicializa una variable para los días de autocompletado en modo semanal
     let autoDays = 0;
 
+    // Si el modo es semanal
     if (mode === "weekly") {
       if (relativeSize % 7 > 0) {
         // Buscamos la ultima fecha que seleccionamos y ejecutamos una función
@@ -170,6 +171,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .addClass("autocomplete");
         });
       }
+      // Se saca el número de semanas
+      nWeeks = Math.round((relativeSize + autoDays) / 7);
+      console.log(nWeeks);
     }
 
     // Si el modo de selección es semanal
@@ -417,6 +421,19 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       // Si la fecha está disponible se realiza la selección
       whenInstance.trigger("change:endDate", nDate);
+    }
+
+    if ($("#n_nights").val() > maxNights) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `You can't select more than ${maxNights} Nights`,
+      }).then((result) => {
+        if (result.isConfirmed || result.isDismissed) {
+          dismissableDaily = true;
+          resetDismissValue();
+        }
+      });
     }
 
     //? noSelectDates()
