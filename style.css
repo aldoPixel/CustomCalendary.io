@@ -4,25 +4,58 @@
   box-sizing: border-box;
 }
 
+/*Fondo del día disponible*/
 .day {
   background-color: #ebf8fb !important;
 }
 
+/*Fondo de un día pasado*/
 .disable-day {
   background-color: lightgray !important;
   color: black !important;
 }
 
+/*Fondo de un día pasado*/
 .disable-day::after {
   background-color: lightgray !important;
 }
 
+/*Fondo del autocompletado*/
 .autocomplete {
   background-color: #d4f1e1 !important;
 }
 
+/*Fondo del día ocupado*/
 .disabled-custom {
   background-color: #ebc3c6 !important;
+}
+
+/*Esta clase establece el fondo transparente al hacer hover en un día a seleccionar y el color del borde*/
+.no-touch .day:hover:after {
+  border-color: #0288d1 !important;
+  background-color: #f3fdff !important;
+}
+
+/*Esta clase establece el fondo transparente al hacer hover en un día a seleccionar*/
+.no-touch .day.active:hover:after {
+  background-color: #0288d1 !important;
+}
+
+/*Esta clase establece el fondo del color que deseamos en la selección*/
+.day.active:after {
+  background-color: #0288d1 !important;
+}
+
+/*Esta clase establece el fondo del color que deseamos en la selección*/
+.day.active:after,
+.day.activeRange:after {
+  background-color: #0288d1 !important;
+}
+
+/*Esta clase establece el fondo del color que deseamos en la selección*/
+.day.activeRange.first:before,
+.day.activeRange.last:before {
+  background-color: #0288d1 !important;
 }
 
 .serial-address {
