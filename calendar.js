@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
   let setWeeklyComplete = true;
   // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly"), diario ("daily") o hibrido ("hybrid")
-  let mode = "hybrid";
+  let mode = "weekly";
   // Esta variable establece el número de semanas
   let nWeeks = 0;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
@@ -385,12 +385,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Cuando se presiona la tecla "esc"
-  $(document).keyup(function (e) {
-    if (e.key === "Escape") {
-      // Se eliminan los autocompletados
-      $(".autocomplete").removeClass("autocomplete");
-    }
-  });
+  //$(document).keyup(function (e) {
+    //if (e.key === "Escape") {
+       //Se eliminan los autocompletados
+      //$(".autocomplete").removeClass("autocomplete");
+    //}
+  //});
 
   // Cuando interactuamos con el selector de noches
   $("#n_nights").change(() => {
