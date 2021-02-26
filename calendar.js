@@ -66,11 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
   let setWeeklyComplete = true;
   // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly"), diario ("daily") o hibrido ("hybrid")
-<<<<<<< HEAD
   let mode = "hybrid";
-=======
-  let mode = "weekly";
->>>>>>> bb43dae4f0b266be7bc61c29e6dfd0103065dc40
   // Esta variable establece el número de semanas
   let nWeeks = 0;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
