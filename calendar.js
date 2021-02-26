@@ -58,15 +58,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // Este arreglo extrae las fechas ocupadas del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas ocupadas
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
   // Esta variable establece el minimo de noches, en este caso 1
-  let minNights = 1;
+  let minNights = 7;
   // Esta variable establece el máximo de noches, en este caso 100
   let maxNights = 100;
   // La varibale que va a disparar nuestras alertas se inicializa como false
   let dismissableDaily = false;
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
   let setWeeklyComplete = true;
-  // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly") o diario ("daily")
-  let mode = "weekly";
+  // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly"), diario ("daily") o hibrido ("hybrid")
+  let mode = "hybrid";
   // Esta variable establece el número de semanas
   let nWeeks = 0;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
@@ -134,6 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Se inicializa una variable para los días de autocompletado en modo semanal
     let autoDays = 0;
 
+    // Si el modo es semanal
     if (mode === "weekly") {
       if (relativeSize % 7 > 0) {
         // Buscamos la ultima fecha que seleccionamos y ejecutamos una función
@@ -170,12 +171,15 @@ document.addEventListener("DOMContentLoaded", () => {
             .addClass("autocomplete");
         });
       }
+      // Se saca el número de semanas
+      nWeeks = Math.round((relativeSize + autoDays) / 7);
+      console.log(nWeeks);
     }
 
     // Si el modo de selección es semanal
     if (mode === "hybrid") {
       // Si hay mas de 21 noches seleccionadas
-      if (uniqueDates.size >= 22) {
+      if (uniqueDates.size > 21) {
         // Si faltan días para completar la semana
         if (relativeSize % 7 > 0) {
           // Buscamos la ultima fecha que seleccionamos y ejecutamos una función
@@ -243,20 +247,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Mismo caso unicamente cambiando la condición a si la cantidad de noches seleccionadas es menor al mínimo de noches
-    if (relativeSize < minNights) {
-      // Si la ultima fecha de selección no es nula se lanza la alerta
-      dateString !== null &&
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: `You must select at least ${minNights} Nights`,
-        }).then((result) => {
-          if (result.isConfirmed || result.isDismissed) {
-            dismissableDaily = true;
-            resetDismissValue();
-          }
-        });
-    }
+    //if (relativeSize < minNights) {
+       //Si la ultima fecha de selección no es nula se lanza la alerta
+      //dateString !== null &&
+        //Swal.fire({
+          //icon: "error",
+          //title: "Error",
+          //text: `You must select at least ${minNights} Nights`,
+        //}).then((result) => {
+          //if (result.isConfirmed || result.isDismissed) {
+            //dismissableDaily = true;
+            //resetDismissValue();
+          //}
+        //});
+    //}
 
     if (relativeSize < 1) {
       dateString !== null &&
@@ -417,6 +421,19 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       // Si la fecha está disponible se realiza la selección
       whenInstance.trigger("change:endDate", nDate);
+    }
+
+    if ($("#n_nights").val() > maxNights) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `You can't select more than ${maxNights} Nights`,
+      }).then((result) => {
+        if (result.isConfirmed || result.isDismissed) {
+          dismissableDaily = true;
+          resetDismissValue();
+        }
+      });
     }
 
     //? noSelectDates()
