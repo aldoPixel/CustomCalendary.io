@@ -58,17 +58,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Este arreglo extrae las fechas ocupadas del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas ocupadas
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
   // Esta variable establece el minimo de noches, en este caso 1
-  let minNights = 7;
+  let minNights = 1;
   // Esta variable establece el máximo de noches, en este caso 100
-  let maxNights = 100;
+  let maxNights = 15;
   // La varibale que va a disparar nuestras alertas se inicializa como false
   let dismissableDaily = false;
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
   let setWeeklyComplete = true;
   // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly"), diario ("daily") o hibrido ("hybrid")
-  let mode = "weekly";
+  let mode = "daily";
   // Esta variable establece el número de semanas
-  let nWeeks = 0;
+  let nWeeks = 4;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
   let selectedTemp = [];
   // Se crea nuestro calendario
@@ -172,14 +172,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
       // Se saca el número de semanas
-      nWeeks = Math.round((relativeSize + autoDays) / 7);
-      console.log(nWeeks);
+      if (Math.round((relativeSize + autoDays) / 7) > nWeeks) {
+        Swal.fire({
+          icon: "error",
+          title: "error",
+          text: `You can't select more than ${nWeeks} weeks`,
+        }).then((result) => {
+          if (result.isConfirmed || result.isDismissed) {
+            dismissableDaily = true;
+            resetDismissValue();
+          }
+        });
+      }
     }
 
     // Si el modo de selección es semanal
     if (mode === "hybrid") {
       // Si hay mas de 21 noches seleccionadas
-      if (uniqueDates.size > 21) {
+      if (uniqueDates.size > maxNights) {
         // Si faltan días para completar la semana
         if (relativeSize % 7 > 0) {
           // Buscamos la ultima fecha que seleccionamos y ejecutamos una función
@@ -217,8 +227,18 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
         // Se saca el número de semanas
-        nWeeks = Math.round((relativeSize + autoDays) / 7);
-        console.log(nWeeks);
+        if (Math.round((relativeSize + autoDays) / 7) > nWeeks) {
+          Swal.fire({
+            icon: "error",
+            title: "error",
+            text: `You can't select more than ${nWeeks} weeks`,
+          }).then((result) => {
+            if (result.isConfirmed || result.isDismissed) {
+              dismissableDaily = true;
+              resetDismissValue();
+            }
+          });
+        }
       }
     }
 
@@ -229,38 +249,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Si el modo es diario
     if (mode === "daily") {
-      // Si el tamaño de noches seleccionadas es mayor a 31
-      if (relativeSize > 31) {
-        // Lanza una alerta
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "You Can't Select More Than 31 Nights",
-        }).then((result) => {
-          if (result.isConfirmed || result.isDismissed) {
-            // Cuando la alerta es cerrada o aceptada limpia el calendario
-            dismissableDaily = true;
-            resetDismissValue();
-          }
-        });
+      // Si el tamaño de noches seleccionadas es mayor al número máximo de días
+      if (relativeSize > maxNights) {
+        dateString !== null &&
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: `You can't select more than ${maxNights} Nights`,
+          }).then((result) => {
+            if (result.isConfirmed || result.isDismissed) {
+              dismissableDaily = true;
+              resetDismissValue();
+            }
+          });
       }
     }
-
-    // Mismo caso unicamente cambiando la condición a si la cantidad de noches seleccionadas es menor al mínimo de noches
-    //if (relativeSize < minNights) {
-       //Si la ultima fecha de selección no es nula se lanza la alerta
-      //dateString !== null &&
-        //Swal.fire({
-          //icon: "error",
-          //title: "Error",
-          //text: `You must select at least ${minNights} Nights`,
-        //}).then((result) => {
-          //if (result.isConfirmed || result.isDismissed) {
-            //dismissableDaily = true;
-            //resetDismissValue();
-          //}
-        //});
-    //}
 
     if (relativeSize < 1) {
       dateString !== null &&
@@ -268,21 +271,6 @@ document.addEventListener("DOMContentLoaded", () => {
           icon: "error",
           title: "Error",
           text: "You must select at least one night",
-        }).then((result) => {
-          if (result.isConfirmed || result.isDismissed) {
-            dismissableDaily = true;
-            resetDismissValue();
-          }
-        });
-    }
-
-    // Mismo caso unicamente cambiando la condición a si excede el máximo de noches
-    if (relativeSize > maxNights) {
-      dateString !== null &&
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: `You can't select more than ${maxNights} Nights`,
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
             dismissableDaily = true;
@@ -386,10 +374,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cuando se presiona la tecla "esc"
   //$(document).keyup(function (e) {
-    //if (e.key === "Escape") {
-       //Se eliminan los autocompletados
-      //$(".autocomplete").removeClass("autocomplete");
-    //}
+  //if (e.key === "Escape") {
+  //Se eliminan los autocompletados
+  //$(".autocomplete").removeClass("autocomplete");
+  //}
   //});
 
   // Cuando interactuamos con el selector de noches
@@ -423,7 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
       whenInstance.trigger("change:endDate", nDate);
     }
 
-    if ($("#n_nights").val() > maxNights) {
+    if (mode === "daily" && $("#n_nights").val() > maxNights) {
       Swal.fire({
         icon: "error",
         title: "Error",
