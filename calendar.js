@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
   let setWeeklyComplete = true;
   // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly"), diario ("daily") o hibrido ("hybrid")
-  let mode = "daily";
+  let mode = "hybrid";
   // Esta variable establece el número de semanas
   let nWeeks = 4;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
@@ -240,6 +240,20 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
       }
+
+      if (relativeSize < minNights) {
+        dateString !== null &&
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: `You must select at least ${minNights} nights`,
+          }).then((result) => {
+            if (result.isConfirmed || result.isDismissed) {
+              dismissableDaily = true;
+              resetDismissValue();
+            }
+          });
+      }
     }
 
     // Se vuelve a inicializar el filtrado de fechas unicas para agregar las fechas que se seleccionaron en modo semanal, en caso de no agregar ninguna en modo semanal el filtrado no será modificado
@@ -255,7 +269,21 @@ document.addEventListener("DOMContentLoaded", () => {
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: `You can't select more than ${maxNights} Nights`,
+            text: `You can't select more than ${maxNights} nights`,
+          }).then((result) => {
+            if (result.isConfirmed || result.isDismissed) {
+              dismissableDaily = true;
+              resetDismissValue();
+            }
+          });
+      }
+
+      if (relativeSize < minNights) {
+        dateString !== null &&
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: `You must select at least ${minNights} nights`,
           }).then((result) => {
             if (result.isConfirmed || result.isDismissed) {
               dismissableDaily = true;
