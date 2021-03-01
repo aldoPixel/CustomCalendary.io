@@ -21,7 +21,7 @@ const noSelectDates = () =>
     text: "Dates Not Available",
   });
 
-// Esta función le da formato "YYYY/MM/DD" a la fecha
+// Esta función le da formato americano a la fecha "Mes/Día/Año" a la fecha
 const formatDate = (date) => {
   let d = new Date(date),
     month = "" + (d.getMonth() + 1),
@@ -31,7 +31,7 @@ const formatDate = (date) => {
   if (month.length < 2) month = "0" + month;
   if (day.length < 2) day = "0" + day;
 
-  return [year, month, day].join("/");
+  return [month, day, year].join("/");
 };
 
 // Esta función de usa para limpiar el calendario de marcadores una vez que se cancele la selección o salte una alerta, se hace uso de Jquery y JS DOM
@@ -55,18 +55,20 @@ const resetDismissValue = () => {
 document.addEventListener("DOMContentLoaded", () => {
   // Mandamos una señal de que nuestra página está renderizada
   console.log("DOM fully loaded and parsed");
+  // Este arreglo extrae las fechas medio disponibles del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas medio disponibles
+  let middleDays = JSON.parse(localStorage.getItem("middleDays")) || [];
   // Este arreglo extrae las fechas ocupadas del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas ocupadas
   let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
   // Esta variable establece el minimo de noches, en este caso 1
   let minNights = 1;
-  // Esta variable establece el máximo de noches, en este caso 100
+  // Esta variable establece el máximo de noches, en este caso 15
   let maxNights = 15;
   // La varibale que va a disparar nuestras alertas se inicializa como false
   let dismissableDaily = false;
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
   let setWeeklyComplete = true;
   // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly"), diario ("daily") o hibrido ("hybrid")
-  let mode = "hybrid";
+  let mode = "weekly";
   // Esta variable establece el número de semanas
   let nWeeks = 4;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
@@ -85,6 +87,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Pasamos nuestro arreglo obtenido del LocalStorage como fechas bloqueadas
     disabledDates: blockedDays,
   });
+
+  // Por cada día medio en el arreglo
+  for (let i = 0; i < middleDays.length; i++) {
+    // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
+    $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
+  }
 
   // Por cada día reservado en el LocalStorage
   for (let i = 0; i < blockedDays.length; i++) {
@@ -161,8 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
             $(`.day[data-val="${lDate.toISOString().slice(0, 10)}"]`).addClass(
               "autocomplete"
             );
-            // Agregamos esa fecha a nuestro arreglo de fechas seleccionadas
-            dates.push(lDate.toISOString().slice(0, 10));
           }
           // Como solución a otro bug es necesario buscar todos los días después de nuestra ultima fecha seleccionada y agregar la clase "autocomplete" a los días necesarios para completar la semana
           $(element)
@@ -216,8 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
               $(
                 `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
               ).addClass("autocomplete");
-              // Agregamos esa fecha a nuestro arreglo de fechas seleccionadas
-              dates.push(lDate.toISOString().slice(0, 10));
             }
             // Como solución a otro bug es necesario buscar todos los días después de nuestra ultima fecha seleccionada y agregar la clase "autocomplete" a los días necesarios para completar la semana
             $(element)
@@ -226,22 +230,27 @@ document.addEventListener("DOMContentLoaded", () => {
               .addClass("autocomplete");
           });
         }
-        // Se saca el número de semanas
+        // Si el numero de semanas es mayor al límite
         if (Math.round((relativeSize + autoDays) / 7) > nWeeks) {
+          // Se lanza una alerta
           Swal.fire({
             icon: "error",
             title: "error",
             text: `You can't select more than ${nWeeks} weeks`,
           }).then((result) => {
             if (result.isConfirmed || result.isDismissed) {
+              // Si la alerta es cerrada
               dismissableDaily = true;
+              // Se limpia el calendario
               resetDismissValue();
             }
           });
         }
       }
 
+      // Si el total de noches es menor al número de noches lanza una alerta
       if (relativeSize < minNights) {
+        // Si la fecha no es null lanza la alerta
         dateString !== null &&
           Swal.fire({
             icon: "error",
@@ -249,17 +258,32 @@ document.addEventListener("DOMContentLoaded", () => {
             text: `You must select at least ${minNights} nights`,
           }).then((result) => {
             if (result.isConfirmed || result.isDismissed) {
+              // Si la alerta es cerrada
               dismissableDaily = true;
+              // Limpia el calendario
               resetDismissValue();
             }
           });
       }
     }
 
-    // Se vuelve a inicializar el filtrado de fechas unicas para agregar las fechas que se seleccionaron en modo semanal, en caso de no agregar ninguna en modo semanal el filtrado no será modificado
-    uniqueDates = new Set(dates);
-    // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado a través de la dispersión de ES6
-    selectedTemp.push(...uniqueDates);
+    // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado
+    let setToArray = Array.from(uniqueDates);
+    // Se crean dos arreglos en nuestro arreglo temporal
+    selectedTemp[0] = new Array();
+    selectedTemp[1] = new Array();
+
+    // Si el día es primero o ultimo
+    for (let i = 0; i < setToArray.length; i++) {
+      if (i === 0 || i === setToArray.length - 1) {
+        // Lo agrega al primer arreglo
+        selectedTemp[0].push(setToArray[i]);
+      } else {
+        // Si no es primero ni ultimo de nuestra selección se agrega al segundo arreglo
+        selectedTemp[1].push(setToArray[i]);
+      }
+    }
+    //selectedTemp.push(...uniqueDates);
 
     // Si el modo es diario
     if (mode === "daily") {
@@ -278,7 +302,9 @@ document.addEventListener("DOMContentLoaded", () => {
           });
       }
 
+      // Si en modo diario el número de noches seleccionadas es menor al mínimo de noches
       if (relativeSize < minNights) {
+        // Si la fecha no es null se lanza una alerta
         dateString !== null &&
           Swal.fire({
             icon: "error",
@@ -286,14 +312,18 @@ document.addEventListener("DOMContentLoaded", () => {
             text: `You must select at least ${minNights} nights`,
           }).then((result) => {
             if (result.isConfirmed || result.isDismissed) {
+              // Si la alerta es cerrada
               dismissableDaily = true;
+              // Se limpia el calendario
               resetDismissValue();
             }
           });
       }
     }
 
+    // Si se elige la misma noche
     if (relativeSize < 1) {
+      // Si la fecha no es null
       dateString !== null &&
         Swal.fire({
           icon: "error",
@@ -301,10 +331,18 @@ document.addEventListener("DOMContentLoaded", () => {
           text: "You must select at least one night",
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
+            // Si la alerta es cerrada
             dismissableDaily = true;
+            // Se limpia el calendario
             resetDismissValue();
           }
         });
+
+      // Por cada día medio en el arreglo
+      for (let i = 0; i < middleDays.length; i++) {
+        // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
+        $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
+      }
     }
 
     // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
@@ -348,13 +386,39 @@ document.addEventListener("DOMContentLoaded", () => {
     $(".autocomplete").removeClass("autocomplete");
     // La alerta de error se establece en falso
     dismissableDaily = false;
+
+    // Por cada día medio en el arreglo
+    for (let i = 0; i < middleDays.length; i++) {
+      // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
+      $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
+    }
   });
 
   // Cuando se presiona el botón con el id "create_event"
   document.getElementById("create_event").addEventListener("click", () => {
-    // En nuestro arreglo almacenado en LocalStorage se agregan todas nuestras fechas seleccionadas
-    blockedDays.push(...selectedTemp);
+    // Por cada día medio
+    for (let i = 0; i < selectedTemp[0].length; i++) {
+      // Si ya se encuentra en el arreglo de dias medios
+      if (middleDays.includes(selectedTemp[0][i])) {
+        // Buscamos su indice en el arreglo de días medios
+        const index = middleDays.indexOf(selectedTemp[0][i]);
+        // Buscamos su indice en el arreglo temporal
+        const indexTemp = selectedTemp[0].indexOf(selectedTemp[0][i]);
+        // Bloqueamos el día medio
+        blockedDays.push(selectedTemp[0][i]);
+        // Eliminamos el día medio del arreglo de días medios
+        middleDays.splice(index, 1);
+        // Eliminamos el día medio del arreglo temporal
+        selectedTemp[0].splice(indexTemp, 1);
+      }
+    }
+
+    // Agregamos nuestros días medios del arreglo temporal al arreglo principal
+    middleDays.push(...selectedTemp[0]);
+    // Agregamos nuestros días ocupados del arreglo temporal al arreglo principal
+    blockedDays.push(...selectedTemp[1]);
     // Ese arreglo se almacena en LocalStorage escribiendo o sobre-escribiendo el que teníamos
+    localStorage.setItem("middleDays", JSON.stringify(middleDays));
     localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
     // Se recarga el navegador (de no hacerlo no se mostrarán las fechas ocupadas)
     window.location.reload();
@@ -366,6 +430,12 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < blockedDays.length; i++) {
       // A todas las fechas ocupadas se les agrega la clase "disabled-custom" para agregarle el fondo rojo
       $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
+    }
+
+    // Por cada día medio en el arreglo
+    for (let i = 0; i < middleDays.length; i++) {
+      // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
+      $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
     }
 
     // Por cada fecha pasada
@@ -388,6 +458,12 @@ document.addEventListener("DOMContentLoaded", () => {
       $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
     }
 
+    // Por cada día medio en el arreglo
+    for (let i = 0; i < middleDays.length; i++) {
+      // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
+      $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
+    }
+
     // Por cada fecha pasada
     for (let i = 0; i < disables.length; i++) {
       disables[i].addEventListener("click", clickLockedDays);
@@ -399,14 +475,6 @@ document.addEventListener("DOMContentLoaded", () => {
       resetDismissValue();
     }
   });
-
-  // Cuando se presiona la tecla "esc"
-  //$(document).keyup(function (e) {
-  //if (e.key === "Escape") {
-  //Se eliminan los autocompletados
-  //$(".autocomplete").removeClass("autocomplete");
-  //}
-  //});
 
   // Cuando interactuamos con el selector de noches
   $("#n_nights").change(() => {
