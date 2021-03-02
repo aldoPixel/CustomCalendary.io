@@ -55,10 +55,10 @@ const resetDismissValue = () => {
 document.addEventListener("DOMContentLoaded", () => {
   // Mandamos una señal de que nuestra página está renderizada
   console.log("DOM fully loaded and parsed");
-  // Este arreglo extrae las fechas medio disponibles del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas medio disponibles
-  let middleDays = JSON.parse(localStorage.getItem("middleDays")) || [];
-  // Este arreglo extrae las fechas ocupadas del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas ocupadas
-  let blockedDays = JSON.parse(localStorage.getItem("blockedDays")) || [];
+  // Este arreglo extrae las fechas del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas ocupadas
+  let dataSource = JSON.parse(localStorage.getItem("blockedDays")) || [];
+  // Se declara un arreglo vacío
+  let blockedDays = [];
   // Esta variable establece el minimo de noches, en este caso 1
   let minNights = 1;
   // Esta variable establece el máximo de noches, en este caso 15
@@ -73,6 +73,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let nWeeks = 4;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
   let selectedTemp = [];
+
+  // Por cada fecha en el LocalStorage filtramos las que no están seleccionadas y las agregamos a nuestro arreglo de fechas ocupadas
+  for (let i = 0; i < dataSource.length; i++) {
+    if (!dataSource[i].selectable) {
+      blockedDays.push(dataSource[i].date);
+    }
+  }
+
   // Se crea nuestro calendario
   let whenInstance = new When({
     // Seleccionamos el div que contendrá nuestro calendario
@@ -88,16 +96,16 @@ document.addEventListener("DOMContentLoaded", () => {
     disabledDates: blockedDays,
   });
 
-  // Por cada día medio en el arreglo
-  for (let i = 0; i < middleDays.length; i++) {
-    // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
-    $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
-  }
-
   // Por cada día reservado en el LocalStorage
-  for (let i = 0; i < blockedDays.length; i++) {
+  for (let i = 0; i < dataSource.length; i++) {
     // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día bloqueado y le añadimos una clase disabled-custom, la cuál pintará de rojo todas las fechas ocupadas
-    $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
+    if (dataSource[i].selectable) {
+      // Por cada fecha seleccionable se agrega la clase "middle-day"
+      $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+    } else {
+      // Por cada fecha no seleccionable se agrega la clase "disabled-custom"
+      $(`.day[data-val='${dataSource[i].date}']`).addClass("disabled-custom");
+    }
   }
 
   // Obtenemos todos los elementos con la clase "disable-day" los cuales son días no válidos para seleccionar, ya sean fechas pasadas u ocupadas
@@ -111,6 +119,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   whenInstance.on("secondDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
+    for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].selectable) {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+      }
+    }
   });
 
   // Despues de seleccionar un rango de fechas se ejecuta una función que pasa como parametro la ultima fecha del rango
@@ -187,6 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (result.isConfirmed || result.isDismissed) {
             dismissableDaily = true;
             resetDismissValue();
+            whenInstance.trigger("reset:start:end");
           }
         });
       }
@@ -243,6 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
               dismissableDaily = true;
               // Se limpia el calendario
               resetDismissValue();
+              whenInstance.trigger("reset:start:end");
             }
           });
         }
@@ -262,6 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
               dismissableDaily = true;
               // Limpia el calendario
               resetDismissValue();
+              whenInstance.trigger("reset:start:end");
             }
           });
       }
@@ -269,18 +285,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado
     let setToArray = Array.from(uniqueDates);
-    // Se crean dos arreglos en nuestro arreglo temporal
-    selectedTemp[0] = new Array();
-    selectedTemp[1] = new Array();
 
     // Si el día es primero o ultimo
     for (let i = 0; i < setToArray.length; i++) {
       if (i === 0 || i === setToArray.length - 1) {
         // Lo agrega al primer arreglo
-        selectedTemp[0].push(setToArray[i]);
+        selectedTemp.push({
+          date: setToArray[i],
+          selectable: true,
+        });
       } else {
         // Si no es primero ni ultimo de nuestra selección se agrega al segundo arreglo
-        selectedTemp[1].push(setToArray[i]);
+        selectedTemp.push({
+          date: setToArray[i],
+          selectable: false,
+        });
       }
     }
     //selectedTemp.push(...uniqueDates);
@@ -298,6 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (result.isConfirmed || result.isDismissed) {
               dismissableDaily = true;
               resetDismissValue();
+              whenInstance.trigger("reset:start:end");
             }
           });
       }
@@ -316,6 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
               dismissableDaily = true;
               // Se limpia el calendario
               resetDismissValue();
+              whenInstance.trigger("reset:start:end");
             }
           });
       }
@@ -335,14 +356,9 @@ document.addEventListener("DOMContentLoaded", () => {
             dismissableDaily = true;
             // Se limpia el calendario
             resetDismissValue();
+            whenInstance.trigger("reset:start:end");
           }
         });
-
-      // Por cada día medio en el arreglo
-      for (let i = 0; i < middleDays.length; i++) {
-        // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
-        $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
-      }
     }
 
     // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
@@ -367,6 +383,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (setWeeklyComplete) {
       document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
     }
+
+    for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].selectable) {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+      }
+    }
   });
 
   // Después de seleccionar nuestra primera fecha
@@ -387,39 +409,34 @@ document.addEventListener("DOMContentLoaded", () => {
     // La alerta de error se establece en falso
     dismissableDaily = false;
 
-    // Por cada día medio en el arreglo
-    for (let i = 0; i < middleDays.length; i++) {
-      // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
-      $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
+    for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].selectable) {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+      }
     }
   });
 
   // Cuando se presiona el botón con el id "create_event"
   document.getElementById("create_event").addEventListener("click", () => {
-    // Por cada día medio
-    for (let i = 0; i < selectedTemp[0].length; i++) {
-      // Si ya se encuentra en el arreglo de dias medios
-      if (middleDays.includes(selectedTemp[0][i])) {
-        // Buscamos su indice en el arreglo de días medios
-        const index = middleDays.indexOf(selectedTemp[0][i]);
-        // Buscamos su indice en el arreglo temporal
-        const indexTemp = selectedTemp[0].indexOf(selectedTemp[0][i]);
-        // Bloqueamos el día medio
-        blockedDays.push(selectedTemp[0][i]);
-        // Eliminamos el día medio del arreglo de días medios
-        middleDays.splice(index, 1);
-        // Eliminamos el día medio del arreglo temporal
-        selectedTemp[0].splice(indexTemp, 1);
+    // Se obtiene un arreglo de fechas en el localStorage
+    const tempArr = dataSource.map((val) => val.date);
+    // Por cada fecha seleccionada
+    for (let i = 0; i < selectedTemp.length; i++) {
+      //Si ya se encuentra en el arreglo de fechas
+      if (tempArr.includes(selectedTemp[i].date)) {
+        // Se deshabilita la selección en la fecha
+        selectedTemp[i].selectable = false;
+        // Se filtra el arreglo para que la fecha seleccionada no se duplique
+        dataSource = dataSource.filter(
+          (val) => val.date !== selectedTemp[i].date
+        );
       }
     }
 
-    // Agregamos nuestros días medios del arreglo temporal al arreglo principal
-    middleDays.push(...selectedTemp[0]);
-    // Agregamos nuestros días ocupados del arreglo temporal al arreglo principal
-    blockedDays.push(...selectedTemp[1]);
+    // Agregamos nuestros días del arreglo temporal al arreglo principal
+    dataSource.push(...selectedTemp);
     // Ese arreglo se almacena en LocalStorage escribiendo o sobre-escribiendo el que teníamos
-    localStorage.setItem("middleDays", JSON.stringify(middleDays));
-    localStorage.setItem("blockedDays", JSON.stringify(blockedDays));
+    localStorage.setItem("blockedDays", JSON.stringify(dataSource));
     // Se recarga el navegador (de no hacerlo no se mostrarán las fechas ocupadas)
     window.location.reload();
   });
@@ -432,10 +449,10 @@ document.addEventListener("DOMContentLoaded", () => {
       $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
     }
 
-    // Por cada día medio en el arreglo
-    for (let i = 0; i < middleDays.length; i++) {
-      // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
-      $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
+    for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].selectable) {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+      }
     }
 
     // Por cada fecha pasada
@@ -448,6 +465,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (dismissableDaily) {
       // Se limpia el calendario
       resetDismissValue();
+
+      whenInstance.trigger("reset:start:end");
     }
   });
 
@@ -458,10 +477,10 @@ document.addEventListener("DOMContentLoaded", () => {
       $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
     }
 
-    // Por cada día medio en el arreglo
-    for (let i = 0; i < middleDays.length; i++) {
-      // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día medio y le añadimos una clase middle-day, la cuál pintará de rojo todas las fechas ocupadas
-      $(`.day[data-val='${middleDays[i]}']`).addClass("middle-day");
+    for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].selectable) {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+      }
     }
 
     // Por cada fecha pasada
@@ -471,8 +490,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Si se mostró la alerta de error
     if (dismissableDaily) {
-      // Se limpia el mapa
+      // Se limpia el calendario
       resetDismissValue();
+
+      whenInstance.trigger("reset:start:end");
     }
   });
 
@@ -502,6 +523,8 @@ document.addEventListener("DOMContentLoaded", () => {
       whenInstance.trigger("reset:start:end");
       // Se limpia el calendario
       resetDismissValue();
+
+      whenInstance.trigger("reset:start:end");
     } else {
       // Si la fecha está disponible se realiza la selección
       whenInstance.trigger("change:endDate", nDate);
@@ -516,6 +539,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (result.isConfirmed || result.isDismissed) {
           dismissableDaily = true;
           resetDismissValue();
+
+          whenInstance.trigger("reset:start:end");
         }
       });
     }
