@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Esta variable establece el minimo de noches, en este caso 1
   let minNights = 1;
   // Esta variable establece el máximo de noches, en este caso 15
-  let maxNights = 15;
+  let maxNights = 20;
   // La varibale que va a disparar nuestras alertas se inicializa como false
   let dismissableDaily = false;
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Si el modo de selección es semanal
     if (mode === "hybrid") {
       // Si hay mas de 21 noches seleccionadas
-      if (uniqueDates.size > maxNights) {
+      if (relativeSize > maxNights) {
         // Si faltan días para completar la semana
         if (relativeSize % 7 > 0) {
           // Buscamos la ultima fecha que seleccionamos y ejecutamos una función
@@ -301,11 +301,18 @@ document.addEventListener("DOMContentLoaded", () => {
             date: setToArray[i],
             selectable: false,
           });
-        } else {
+        } else if (i === 0) {
           // Lo agrega al arreglo temporal como fecha seleccionable
           selectedTemp.push({
             date: setToArray[i],
             selectable: true,
+            position: "first",
+          });
+        } else if (i === setToArray.length - 1) {
+          selectedTemp.push({
+            date: setToArray[i],
+            selectable: true,
+            position: "last",
           });
         }
       } else {
@@ -376,21 +383,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
-    $(".autocomplete").length > 0
-      ? (document.getElementById("check_out").value = `${formatDate(
-          $(".autocomplete").last().attr("data-val")
-        )}`)
-      : (document.getElementById("check_out").value = `${formatDate(
-          dateString
-        )}`);
+    document.getElementById("check_out").value = `${formatDate(dateString)}`;
     // Se busca el elemento con id "code-to" y cambiamos su innerText
-    $(".autocomplete").length > 0
-      ? (document.getElementById("code-to").innerText = `${formatDate(
-          $(".autocomplete").last().attr("data-val")
-        )}`)
-      : (document.getElementById("code-to").innerText = `${formatDate(
-          dateString
-        )}`);
+    document.getElementById("code-to").innerText = `${formatDate(dateString)}`;
     // Se busca el input con id "n_nights" y cambiamos su valor al número de noches incluyendo el autocompletado
     //document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
     // Si se seleccionaron los días usando el calendario se coloca en el selector de noches por defecto el número de noches

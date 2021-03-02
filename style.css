@@ -136,3 +136,13 @@
 .spanInfo .info-result {
   color: blue;
 }
+
+@media screen and (max-width: 991px) {
+  .done {
+    text-align: center !important;
+  }
+
+  .cancellation {
+    text-align: center !important;
+  }
+}
