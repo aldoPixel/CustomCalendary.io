@@ -286,16 +286,30 @@ document.addEventListener("DOMContentLoaded", () => {
     // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado
     let setToArray = Array.from(uniqueDates);
 
-    // Si el día es primero o ultimo
+    // Por cada día seleccionado
     for (let i = 0; i < setToArray.length; i++) {
+      // Si el día es el pimero o ultimo seleccionado
       if (i === 0 || i === setToArray.length - 1) {
-        // Lo agrega al primer arreglo
-        selectedTemp.push({
-          date: setToArray[i],
-          selectable: true,
-        });
+        // Si la fecha anterior a ese día no es válida
+        if (
+          $(`.day[data-val="${setToArray[i]}"]`)
+            .prev()
+            .attr("data-disabled") === "true"
+        ) {
+          // Se agrega al arreglo temporal como no fecha seleccionable
+          selectedTemp.push({
+            date: setToArray[i],
+            selectable: false,
+          });
+        } else {
+          // Lo agrega al arreglo temporal como fecha seleccionable
+          selectedTemp.push({
+            date: setToArray[i],
+            selectable: true,
+          });
+        }
       } else {
-        // Si no es primero ni ultimo de nuestra selección se agrega al segundo arreglo
+        // Si no es primero ni ultimo de nuestra selección se agrega al arreglo coo fecha no seleccionable
         selectedTemp.push({
           date: setToArray[i],
           selectable: false,
