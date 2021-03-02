@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
   let setWeeklyComplete = true;
   // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly"), diario ("daily") o hibrido ("hybrid")
-  let mode = "weekly";
+  let mode = "hybrid";
   // Esta variable establece el número de semanas
   let nWeeks = 4;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
@@ -395,7 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
     // Si se seleccionaron los días usando el calendario se coloca en el selector de noches por defecto el número de noches
     if (setWeeklyComplete) {
-      document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
+      document.getElementById("n_nights").value = `${relativeSize}`;
     }
 
     for (let i = 0; i < dataSource.length; i++) {
