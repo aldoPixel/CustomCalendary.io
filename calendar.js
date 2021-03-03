@@ -81,6 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  localStorage.removeItem("last");
+  localStorage.removeItem("first");
+
   // Se crea nuestro calendario
   let whenInstance = new When({
     // Seleccionamos el div que contendrá nuestro calendario
@@ -95,6 +98,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Pasamos nuestro arreglo obtenido del LocalStorage como fechas bloqueadas
     disabledDates: blockedDays,
   });
+
+  whenInstance.trigger("change:startDate", new Date("2050-03-4"));
+  whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+  whenInstance.trigger("reset:start:end");
 
   // Por cada día reservado en el LocalStorage
   for (let i = 0; i < dataSource.length; i++) {
@@ -128,6 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   whenInstance.on("secondDateSelect:before", (dateString) => {
     localStorage.removeItem("last");
+    localStorage.removeItem("first");
   });
 
   // Despues de seleccionar un rango de fechas se ejecuta una función que pasa como parametro la ultima fecha del rango
@@ -404,6 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     localStorage.removeItem("last");
+    localStorage.removeItem("first");
   });
 
   // Después de seleccionar nuestra primera fecha
@@ -419,7 +428,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Antes de seleccionar nuestra primera fecha
   whenInstance.on("firstDateSelect:before", (dateString) => {
-    localStorage.removeItem("last");
     // Limpiamos los autocomplete del calendario
     $(".autocomplete").removeClass("autocomplete");
     // La alerta de error se establece en falso
@@ -436,11 +444,11 @@ document.addEventListener("DOMContentLoaded", () => {
     //.attr("data-disabled", "true")
     //.click(noSelectDates);
 
-    let tmpLimit = 7 * nWeeks;
-    let tmpDate = new Date(dateString);
-
     let lasts = dataSource.filter(
       (val) => val.position === "first" && val.selectable === true
+    );
+    let firsts = dataSource.filter(
+      (val) => val.position === "last" && val.selectable === true
     );
     let lastsDates = lasts.map((val) => val.date);
     lastsDates = lastsDates.sort((a, b) => {
@@ -448,13 +456,27 @@ document.addEventListener("DOMContentLoaded", () => {
       let tempB = new Date(b);
       return tempA - tempB;
     });
+    let firstsDates = firsts.map((val) => val.date);
+    firstsDates = firstsDates.sort((a, b) => {
+      let tempA = new Date(a);
+      let tempB = new Date(b);
+      return tempB - tempA;
+    });
     for (let i = 0; i < lastsDates.length; i++) {
       let currDate = new Date(dateString);
       let tempDate = new Date(lastsDates[i]);
 
       if (currDate < tempDate) {
-        //console.log(lastsDates[i]);
         localStorage.setItem("last", lastsDates[i]);
+        break;
+      }
+    }
+    for (let i = 0; i < firstsDates.length; i++) {
+      let currDate = new Date(dateString);
+      let tempDate = new Date(firstsDates[i]);
+
+      if (currDate > tempDate) {
+        localStorage.setItem("first", firstsDates[i]);
         break;
       }
     }
