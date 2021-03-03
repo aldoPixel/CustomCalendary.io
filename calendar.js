@@ -126,6 +126,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  whenInstance.on("secondDateSelect:before", (dateString) => {
+    localStorage.removeItem("last");
+  });
+
   // Despues de seleccionar un rango de fechas se ejecuta una función que pasa como parametro la ultima fecha del rango
   whenInstance.on("secondDateSelect:after", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
@@ -398,6 +402,8 @@ document.addEventListener("DOMContentLoaded", () => {
         $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
       }
     }
+
+    localStorage.removeItem("last");
   });
 
   // Después de seleccionar nuestra primera fecha
@@ -413,6 +419,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Antes de seleccionar nuestra primera fecha
   whenInstance.on("firstDateSelect:before", (dateString) => {
+    localStorage.removeItem("last");
     // Limpiamos los autocomplete del calendario
     $(".autocomplete").removeClass("autocomplete");
     // La alerta de error se establece en falso
@@ -421,6 +428,34 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < dataSource.length; i++) {
       if (dataSource[i].selectable) {
         $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+      }
+    }
+
+    //$(".middle-day")
+    //.next(".middle-day")
+    //.attr("data-disabled", "true")
+    //.click(noSelectDates);
+
+    let tmpLimit = 7 * nWeeks;
+    let tmpDate = new Date(dateString);
+
+    let lasts = dataSource.filter(
+      (val) => val.position === "first" && val.selectable === true
+    );
+    let lastsDates = lasts.map((val) => val.date);
+    lastsDates = lastsDates.sort((a, b) => {
+      let tempA = new Date(a);
+      let tempB = new Date(b);
+      return tempA - tempB;
+    });
+    for (let i = 0; i < lastsDates.length; i++) {
+      let currDate = new Date(dateString);
+      let tempDate = new Date(lastsDates[i]);
+
+      if (currDate < tempDate) {
+        //console.log(lastsDates[i]);
+        localStorage.setItem("last", lastsDates[i]);
+        break;
       }
     }
   });

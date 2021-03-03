@@ -137,6 +137,26 @@
   color: blue;
 }
 
+.btn-success {
+  color: #fff !important;
+  background-color: #78c416 !important;
+  border-color: #78c416 !important;
+  background-image: none !important;
+}
+
+.btn-success:hover {
+  color: #fff !important;
+  background-color: #78c416 !important;
+  border-color: #78c416 !important;
+}
+
+.btn-success:focus,
+.btn-success.focus {
+  color: #fff !important;
+  background-color: #449d44 !important;
+  border-color: #255625 !important;
+}
+
 @media screen and (max-width: 991px) {
   .done {
     text-align: center !important;
