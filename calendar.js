@@ -192,6 +192,17 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           // Por cada día en el rango de días que necesitamos para completar la semana
           for (let i = 0; i < autoDays; i++) {
+            if (
+              $(
+                `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+              ).hasClass("disabled-custom") ||
+              $(
+                `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+              ).hasClass("middle-day")
+            ) {
+              break;
+            }
+
             // Se aumenta en un día la fecha del ultimo día seleccionado
             lDate.setDate(lDate.getDate() + 1);
             // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
@@ -200,10 +211,10 @@ document.addEventListener("DOMContentLoaded", () => {
             );
           }
           // Como solución a otro bug es necesario buscar todos los días después de nuestra ultima fecha seleccionada y agregar la clase "autocomplete" a los días necesarios para completar la semana
-          $(element)
-            .nextAll(".day")
-            .slice(0, autoDays)
-            .addClass("autocomplete");
+          //$(element)
+          //.nextAll(".day")
+          //.slice(0, autoDays)
+          //.addClass("autocomplete");
         });
       }
       // Se saca el número de semanas
@@ -246,6 +257,17 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             // Por cada día en el rango de días que necesitamos para completar la semana
             for (let i = 0; i < autoDays; i++) {
+              if (
+                $(
+                  `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+                ).hasClass("disabled-custom") ||
+                $(
+                  `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+                ).hasClass("middle-day")
+              ) {
+                break;
+              }
+
               // Se aumenta en un día la fecha del ultimo día seleccionado
               lDate.setDate(lDate.getDate() + 1);
               // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
@@ -254,10 +276,10 @@ document.addEventListener("DOMContentLoaded", () => {
               ).addClass("autocomplete");
             }
             // Como solución a otro bug es necesario buscar todos los días después de nuestra ultima fecha seleccionada y agregar la clase "autocomplete" a los días necesarios para completar la semana
-            $(element)
-              .nextAll(".day")
-              .slice(0, autoDays)
-              .addClass("autocomplete");
+            //$(element)
+              //.nextAll(".day")
+              //.slice(0, autoDays)
+              //.addClass("autocomplete");
           });
         }
         // Si el numero de semanas es mayor al límite
