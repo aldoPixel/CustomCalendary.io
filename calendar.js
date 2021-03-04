@@ -120,6 +120,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Despues de seleccionar un rango de fechas se ejecuta una función que pasa como parametro la ultima fecha del rango
   whenInstance.on("secondDateSelect:after", (dateString) => {
+    for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].selectable && dataSource[i].position === "last") {
+        $(`.day[data-val="${dataSource[i].date}"]`).addClass("middle-day-last");
+      }
+    }
     $(".autocomplete").removeClass("autocomplete");
     // Inicializamos nuestra selección temporal como vacía ya que de no hacerlo no limpiara nuestra selección y agregará días que no deseamos sean agregados como ocupados
     selectedTemp = [];
@@ -414,6 +419,17 @@ document.addEventListener("DOMContentLoaded", () => {
     )}`;
     // Si hacemos selección por calendario se establece en true
     setWeeklyComplete = true;
+
+    for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].selectable && dataSource[i].position === "last") {
+        $(`.day[data-val="${dataSource[i].date}"]`).addClass("middle-day-last");
+      } else if (
+        dataSource[i].selectable &&
+        dataSource[i].position === "first"
+      ) {
+        $(`.day[data-val="${dataSource[i].date}"]`).addClass("middle-day");
+      }
+    }
   });
 
   // Antes de seleccionar nuestra primera fecha
