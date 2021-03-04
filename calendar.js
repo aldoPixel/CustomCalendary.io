@@ -511,22 +511,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cuando se navege al siguiente mes
   $(".icon.icon-right-triangle").click(() => {
     // Buscamos todas las fechas bloqueadas
-    for (let i = 0; i < blockedDays.length; i++) {
-      // A todas las fechas ocupadas se les agrega la clase "disabled-custom" para agregarle el fondo rojo
-      $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
-    }
+    //for (let i = 0; i < blockedDays.length; i++) {
+       //A todas las fechas ocupadas se les agrega la clase "disabled-custom" para agregarle el fondo rojo
+      //$(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
+    //}
 
-    for (let i = 0; i < dataSource.length; i++) {
-      if (dataSource[i].selectable) {
-        $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
-      }
-    }
+    //for (let i = 0; i < dataSource.length; i++) {
+      //if (dataSource[i].selectable) {
+        //$(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+      //}
+    //}
 
-    // Por cada fecha pasada
-    for (let i = 0; i < disables.length; i++) {
-      // Se agrega una función al hacerle click para mandar una alerta
-      disables[i].addEventListener("click", clickLockedDays);
-    }
+     //Por cada fecha pasada
+    //for (let i = 0; i < disables.length; i++) {
+       //Se agrega una función al hacerle click para mandar una alerta
+      //disables[i].addEventListener("click", clickLockedDays);
+    //}
 
     // Si se mostró la alerta de error
     if (dismissableDaily) {
@@ -540,20 +540,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cuando se navega al mes anterior
   $(".icon.icon-left-triangle").click(() => {
     // A todas las fechas ocupadas se les agrega la clase "disabled-custom" para agregarle el fondo rojo
-    for (let i = 0; i < blockedDays.length; i++) {
-      $(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
-    }
+    //for (let i = 0; i < blockedDays.length; i++) {
+      //$(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
+    //}
 
-    for (let i = 0; i < dataSource.length; i++) {
-      if (dataSource[i].selectable) {
-        $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
-      }
-    }
+    //for (let i = 0; i < dataSource.length; i++) {
+      //if (dataSource[i].selectable) {
+        //$(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+      //}
+    //}
 
-    // Por cada fecha pasada
-    for (let i = 0; i < disables.length; i++) {
-      disables[i].addEventListener("click", clickLockedDays);
-    }
+     //Por cada fecha pasada
+    //for (let i = 0; i < disables.length; i++) {
+      //disables[i].addEventListener("click", clickLockedDays);
+    //}
 
     // Si se mostró la alerta de error
     if (dismissableDaily) {
