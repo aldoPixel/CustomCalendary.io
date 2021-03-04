@@ -9,7 +9,7 @@ const clickLockedDays = ({
     icon: "error",
     title: "Error",
     // Se usan los template Strings de ES6 para insertar la fecha en la cadena del texto
-    text: `Date ${val} Not Available`,
+    text: `Date ${formatDate(val)} Not Available`,
   });
 };
 
@@ -107,27 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
   whenInstance.trigger("change:endDate", new Date("2050-03-7"));
   whenInstance.trigger("reset:start:end");
 
-  // Por cada día reservado en el LocalStorage
-  for (let i = 0; i < dataSource.length; i++) {
-    // Seleccionamos con jQuery a través de template Strings de ES6 todos los días que tengan como atributo "data-val" la fecha del día bloqueado y le añadimos una clase disabled-custom, la cuál pintará de rojo todas las fechas ocupadas
-    if (dataSource[i].selectable) {
-      // Por cada fecha seleccionable se agrega la clase "middle-day"
-      $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
-    } else {
-      // Por cada fecha no seleccionable se agrega la clase "disabled-custom"
-      $(`.day[data-val='${dataSource[i].date}']`).addClass("disabled-custom");
-    }
-  }
-
-  // Obtenemos todos los elementos con la clase "disable-day" los cuales son días no válidos para seleccionar, ya sean fechas pasadas u ocupadas
-  const disables = document.getElementsByClassName("disable-day");
-
-  // Por cada elemento con clase "disable-day"
-  for (let i = 0; i < disables.length; i++) {
-    // Le agregamos la función definida al inicio conocida como "clickLockedDays" cuando se haga click en un día no válido
-    disables[i].addEventListener("click", clickLockedDays);
-  }
-
   whenInstance.on("secondDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
     for (let i = 0; i < dataSource.length; i++) {
@@ -135,9 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
         $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
       }
     }
-  });
-
-  whenInstance.on("secondDateSelect:before", (dateString) => {
     localStorage.removeItem("last");
     localStorage.removeItem("first");
   });
@@ -210,11 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
               "autocomplete"
             );
           }
-          // Como solución a otro bug es necesario buscar todos los días después de nuestra ultima fecha seleccionada y agregar la clase "autocomplete" a los días necesarios para completar la semana
-          //$(element)
-          //.nextAll(".day")
-          //.slice(0, autoDays)
-          //.addClass("autocomplete");
         });
       }
       // Se saca el número de semanas
@@ -275,11 +246,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
               ).addClass("autocomplete");
             }
-            // Como solución a otro bug es necesario buscar todos los días después de nuestra ultima fecha seleccionada y agregar la clase "autocomplete" a los días necesarios para completar la semana
-            //$(element)
-              //.nextAll(".day")
-              //.slice(0, autoDays)
-              //.addClass("autocomplete");
           });
         }
         // Si el numero de semanas es mayor al límite
@@ -424,8 +390,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("check_out").value = `${formatDate(dateString)}`;
     // Se busca el elemento con id "code-to" y cambiamos su innerText
     document.getElementById("code-to").innerText = `${formatDate(dateString)}`;
-    // Se busca el input con id "n_nights" y cambiamos su valor al número de noches incluyendo el autocompletado
-    //document.getElementById("n_nights").value = `${relativeSize + autoDays}`;
     // Si se seleccionaron los días usando el calendario se coloca en el selector de noches por defecto el número de noches
     if (setWeeklyComplete) {
       document.getElementById("n_nights").value = `${relativeSize}`;
@@ -464,11 +428,6 @@ document.addEventListener("DOMContentLoaded", () => {
         $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
       }
     }
-
-    //$(".middle-day")
-    //.next(".middle-day")
-    //.attr("data-disabled", "true")
-    //.click(noSelectDates);
 
     let lasts = dataSource.filter(
       (val) => val.position === "first" && val.selectable === true
@@ -532,62 +491,6 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("blockedDays", JSON.stringify(dataSource));
     // Se recarga el navegador (de no hacerlo no se mostrarán las fechas ocupadas)
     window.location.reload();
-  });
-
-  // Cuando se navege al siguiente mes
-  $(".icon.icon-right-triangle").click(() => {
-    // Buscamos todas las fechas bloqueadas
-    //for (let i = 0; i < blockedDays.length; i++) {
-    //A todas las fechas ocupadas se les agrega la clase "disabled-custom" para agregarle el fondo rojo
-    //$(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
-    //}
-
-    //for (let i = 0; i < dataSource.length; i++) {
-    //if (dataSource[i].selectable) {
-    //$(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
-    //}
-    //}
-
-    //Por cada fecha pasada
-    //for (let i = 0; i < disables.length; i++) {
-    //Se agrega una función al hacerle click para mandar una alerta
-    //disables[i].addEventListener("click", clickLockedDays);
-    //}
-
-    // Si se mostró la alerta de error
-    if (dismissableDaily) {
-      // Se limpia el calendario
-      resetDismissValue();
-
-      whenInstance.trigger("reset:start:end");
-    }
-  });
-
-  // Cuando se navega al mes anterior
-  $(".icon.icon-left-triangle").click(() => {
-    // A todas las fechas ocupadas se les agrega la clase "disabled-custom" para agregarle el fondo rojo
-    //for (let i = 0; i < blockedDays.length; i++) {
-    //$(`.day[data-val='${blockedDays[i]}']`).addClass("disabled-custom");
-    //}
-
-    //for (let i = 0; i < dataSource.length; i++) {
-    //if (dataSource[i].selectable) {
-    //$(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
-    //}
-    //}
-
-    //Por cada fecha pasada
-    //for (let i = 0; i < disables.length; i++) {
-    //disables[i].addEventListener("click", clickLockedDays);
-    //}
-
-    // Si se mostró la alerta de error
-    if (dismissableDaily) {
-      // Se limpia el calendario
-      resetDismissValue();
-
-      whenInstance.trigger("reset:start:end");
-    }
   });
 
   // Cuando interactuamos con el selector de noches
