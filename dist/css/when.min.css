@@ -169,7 +169,7 @@ input {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   width: 420px;
-  height: 240px;
+  height: 200px;
   background-color: #fff;
 }
 .days-page {
@@ -270,7 +270,7 @@ input {
   left: 10px;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  width: 40px;
+  width: 47px;
   height: 40px;
   content: attr(data-day-num);
   border: 2px solid #26a69a;
@@ -349,7 +349,7 @@ input {
   left: 10px;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  width: 40px;
+  width: 47px;
   height: 40px;
   content: attr(data-day-num);
   color: #5d5d5e;
@@ -612,7 +612,7 @@ input {
   float: left;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  width: 280px;
+  width: 330px;
   padding-right: 20px;
 }
 .double .month-year-label + .month-year-label {
@@ -754,7 +754,7 @@ input {
   bottom: 0;
 }
 .double .days-container {
-  width: 300px;
+  width: 350px;
   border-right: 1px solid #f0f0f3;
 }
 .double .days-container + .days-container {
@@ -763,18 +763,18 @@ input {
   border-left: 20px solid #fff;
 }
 .double .days-page {
-  width: 280px;
+  width: 350px;
 }
 .double .day,
 .double .void-day {
-  width: 40px;
+  width: 47px;
 }
 .double .day.active:after,
 .double .day:hover:after {
   left: 0;
 }
 .double .day.activeRange:after {
-  width: 40px;
+  width: 47px;
 }
 .double .day.activeRange.first:before,
 .double .day.activeRange.last:before {
@@ -805,7 +805,7 @@ input {
   padding-left: 40px;
 }
 .double.calendar {
-  width: 600px;
+  width: 700px;
 }
 .double .choose-month-label,
 .double .choose-month-label.active:before,
@@ -813,11 +813,11 @@ input {
   width: 120px;
 }
 .double .week-label {
-  width: 40px;
+  width: 47px;
 }
 .double .week-name-container {
   float: left;
-  width: 300px;
+  width: 350px;
 }
 .double .week-name-container + .week-name-container {
   padding-left: 20px;
