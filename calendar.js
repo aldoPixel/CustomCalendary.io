@@ -1,3 +1,5 @@
+let whenInstance;
+let dataSource;
 //Este evento se usa para mandar una alerta cuando se seleccione un rango de fecha no disponible, como parametros se usa la desestructuración de objetos de ES6 para obtener la fecha
 const clickLockedDays = ({
   target: {
@@ -21,7 +23,43 @@ const noSelectDates = () =>
     text: "Dates Not Available",
   }).then((result) => {
     if (result.isConfirmed || result.isDismissed) {
-      window.location.reload();
+      // window.location.reload();
+      whenInstance.trigger("change:startDate", new Date("2050-03-4"));
+      whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+      whenInstance.trigger("reset:start:end");
+      for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].selectable) {
+          if (dataSource[i].position === "last") {
+            const temp =
+              document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+              "";
+            if (temp) {
+              for (let i = 0; i < temp.length; i++) {
+                temp[i].classList.add("middle-day-last");
+              }
+            }
+          }
+          if (dataSource[i].position === "first") {
+            const temp =
+              document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+              "";
+            if (temp) {
+              for (let i = 0; i < temp.length; i++) {
+                temp[i].classList.add("middle-day");
+              }
+            }
+          }
+        } else {
+          const temp =
+            document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+            "";
+          if (temp) {
+            for (let i = 0; i < temp.length; i++) {
+              temp[i].classList.add("disabled-custom");
+            }
+          }
+        }
+      }
     }
   });
 
@@ -60,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Mandamos una señal de que nuestra página está renderizada
   console.log("DOM fully loaded and parsed");
   // Este arreglo extrae las fechas del LocalStorage, en caso de que no exista en LocalStorage se inicializa como arreglo vacío, este arreglo tendrá todas las fechas ocupadas
-  let dataSource = JSON.parse(localStorage.getItem("blockedDays")) || [];
+  dataSource = JSON.parse(localStorage.getItem("blockedDays")) || [];
   // Se declara un arreglo vacío
   let blockedDays = [];
   // Esta variable establece el minimo de noches, en este caso 1
@@ -89,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
   localStorage.removeItem("first");
 
   // Se crea nuestro calendario
-  let whenInstance = new When({
+  whenInstance = new When({
     // Seleccionamos el div que contendrá nuestro calendario
     container: document.getElementById("picker-input"),
     //keyboardEvents: true,
@@ -469,7 +507,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (currDate > tempDate) {
         localStorage.setItem("first", firstsDates[i]);
-        console.log(firstsDates[i]);
         break;
       }
     }
@@ -480,7 +517,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (currDate < tempDate) {
         localStorage.setItem("last", lastsDates[i]);
-        console.log(lastsDates[i], "last");
         break;
       }
     }
