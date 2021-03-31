@@ -476,7 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < lastsDates.length; i++) {
       let currDate = new Date(dateString);
       let tempDate = new Date(lastsDates[i]);
-      // tempDate.setDate(tempDate.getDate() + 1);
+      tempDate.setDate(tempDate.getDate() + 1);
 
       if (currDate < tempDate) {
         localStorage.setItem("last", lastsDates[i]);
