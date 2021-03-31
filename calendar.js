@@ -463,22 +463,24 @@ document.addEventListener("DOMContentLoaded", () => {
       let tempB = new Date(b);
       return tempB - tempA;
     });
-    for (let i = 0; i < lastsDates.length; i++) {
-      let currDate = new Date(dateString);
-      let tempDate = new Date(lastsDates[i]);
-      tempDate.setDate(tempDate.getDate() + 1);
-
-      if (currDate <= tempDate) {
-        localStorage.setItem("last", lastsDates[i]);
-        break;
-      }
-    }
     for (let i = 0; i < firstsDates.length; i++) {
       let currDate = new Date(dateString);
       let tempDate = new Date(firstsDates[i]);
 
       if (currDate > tempDate) {
         localStorage.setItem("first", firstsDates[i]);
+        console.log(firstsDates[i]);
+        break;
+      }
+    }
+    for (let i = 0; i < lastsDates.length; i++) {
+      let currDate = new Date(dateString);
+      let tempDate = new Date(lastsDates[i]);
+      // tempDate.setDate(tempDate.getDate() + 1);
+
+      if (currDate < tempDate) {
+        localStorage.setItem("last", lastsDates[i]);
+        console.log(lastsDates[i], "last");
         break;
       }
     }
@@ -504,9 +506,62 @@ document.addEventListener("DOMContentLoaded", () => {
     // Agregamos nuestros días del arreglo temporal al arreglo principal
     dataSource.push(...selectedTemp);
     // Ese arreglo se almacena en LocalStorage escribiendo o sobre-escribiendo el que teníamos
+
     localStorage.setItem("blockedDays", JSON.stringify(dataSource));
+
+    localStorage.removeItem("last");
+    localStorage.removeItem("first");
+
+    whenInstance.disabledDates = dataSource;
+
+    whenInstance.trigger("reset:start:end");
+
+    for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].selectable) {
+        if (dataSource[i].position === "last") {
+          const temp =
+            document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+            "";
+          if (temp) {
+            for (let i = 0; i < temp.length; i++) {
+              temp[i].classList.add("middle-day-last");
+            }
+          }
+        }
+        if (dataSource[i].position === "first") {
+          const temp =
+            document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+            "";
+          if (temp) {
+            for (let i = 0; i < temp.length; i++) {
+              temp[i].classList.add("middle-day");
+            }
+          }
+        }
+      } else {
+        const temp =
+          document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) || "";
+        if (temp) {
+          for (let i = 0; i < temp.length; i++) {
+            temp[i].classList.add("disabled-custom");
+          }
+        }
+      }
+    }
+
+    //whenInstance = new When({
+    //  // Seleccionamos el div que contendrá nuestro calendario
+    //  container: document.getElementById("picker-input"),
+    //  //keyboardEvents: true,
+    //  // Establecemos que sea siempre visible
+    //  inline: true,
+    //  double: true,
+    //  minDate: new Date(),
+    //  disabledDates: blockedDays,
+    //});
+
     // Se recarga el navegador (de no hacerlo no se mostrarán las fechas ocupadas)
-    window.location.reload();
+    // window.location.reload();
   });
 
   // Cuando interactuamos con el selector de noches
