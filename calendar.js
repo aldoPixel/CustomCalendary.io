@@ -457,6 +457,24 @@ document.addEventListener("DOMContentLoaded", () => {
     )}`;
     // Si hacemos selección por calendario se establece en true
     setWeeklyComplete = true;
+    const targetDate = new Date(dateString);
+    const nextDate = new Date(dateString);
+    nextDate.setDate(nextDate.getDate() + 1);
+
+    if (
+      $(`.day[data-val="${targetDate.toISOString().slice(0, 10)}"]`).hasClass(
+        "middle-day"
+      ) &&
+      $(`.day[data-val="${nextDate.toISOString().slice(0, 10)}"]`).hasClass(
+        "middle-day-last"
+      )
+    ) {
+      Swal.fire({
+        title: "Date",
+        icon: "info",
+        text: formatDate(dateString),
+      });
+    }
 
     for (let i = 0; i < dataSource.length; i++) {
       if (dataSource[i].selectable && dataSource[i].position === "last") {
