@@ -12,6 +12,46 @@ const clickLockedDays = ({
     title: "Error",
     // Se usan los template Strings de ES6 para insertar la fecha en la cadena del texto
     text: `Date ${formatDate(val)} Not Available`,
+  }).then((result) => {
+    if (result.isConfirmed || result.isDismissed) {
+      whenInstance.trigger("change:startDate", new Date("2050-03-4"));
+      whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+      whenInstance.trigger("reset:start:end");
+
+      for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].selectable) {
+          if (dataSource[i].position === "last") {
+            const temp =
+              document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+              "";
+            if (temp) {
+              for (let i = 0; i < temp.length; i++) {
+                temp[i].classList.add("middle-day-last");
+              }
+            }
+          }
+          if (dataSource[i].position === "first") {
+            const temp =
+              document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+              "";
+            if (temp) {
+              for (let i = 0; i < temp.length; i++) {
+                temp[i].classList.add("middle-day");
+              }
+            }
+          }
+        } else {
+          const temp =
+            document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+            "";
+          if (temp) {
+            for (let i = 0; i < temp.length; i++) {
+              temp[i].classList.add("disabled-custom");
+            }
+          }
+        }
+      }
+    }
   });
 };
 
@@ -130,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
   whenInstance = new When({
     // Seleccionamos el div que contendrá nuestro calendario
     container: document.getElementById("picker-input"),
-    //keyboardEvents: true,
+    // keyboardEvents: true,
     // Establecemos que sea siempre visible
     inline: true,
     // Establecemos que se muestren dos meses por página
@@ -465,9 +505,12 @@ document.addEventListener("DOMContentLoaded", () => {
       $(`.day[data-val="${targetDate.toISOString().slice(0, 10)}"]`).hasClass(
         "middle-day"
       ) &&
-      $(`.day[data-val="${nextDate.toISOString().slice(0, 10)}"]`).hasClass(
-        "middle-day-last"
-      )
+      ($(`.day[data-val="${nextDate.toISOString().slice(0, 10)}"]`).hasClass(
+        "disabled-custom"
+      ) ||
+        $(`.day[data-val="${nextDate.toISOString().slice(0, 10)}"]`).hasClass(
+          "middle-day-last"
+        ))
     ) {
       Swal.fire({
         title: "Date",
@@ -598,6 +641,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (temp) {
           for (let i = 0; i < temp.length; i++) {
             temp[i].classList.add("disabled-custom");
+            temp[i].addEventListener("click", clickLockedDays);
           }
         }
       }
