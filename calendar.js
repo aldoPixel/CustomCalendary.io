@@ -14,10 +14,6 @@ const clickLockedDays = ({
     text: `Date ${formatDate(val)} Not Available`,
   }).then((result) => {
     if (result.isConfirmed || result.isDismissed) {
-      whenInstance.trigger("change:startDate", new Date("2050-03-4"));
-      whenInstance.trigger("change:endDate", new Date("2050-03-7"));
-      whenInstance.trigger("reset:start:end");
-
       for (let i = 0; i < dataSource.length; i++) {
         if (dataSource[i].selectable) {
           if (dataSource[i].position === "last") {
@@ -611,6 +607,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     whenInstance.disabledDates = dataSource;
 
+    blockedDays = [];
+    for (let i = 0; i < dataSource.length; i++) {
+      if (!dataSource[i].selectable) {
+        blockedDays.push(dataSource[i].date);
+      }
+    }
+
+    document.getElementById("picker-input").innerHTML = "";
+
+    whenInstance = new When({
+      // Seleccionamos el div que contendrá nuestro calendario
+      container: document.getElementById("picker-input"),
+      // keyboardEvents: true,
+      // Establecemos que sea siempre visible
+      inline: true,
+      // Establecemos que se muestren dos meses por página
+      double: true,
+      // Establecemos que la fecha mínima de selección sea el día de hoy
+      minDate: new Date(),
+      // Pasamos nuestro arreglo obtenido del LocalStorage como fechas bloqueadas
+      disabledDates: blockedDays,
+    });
+
+    whenInstance.trigger("change:startDate", new Date("2050-03-4"));
+    whenInstance.trigger("change:endDate", new Date("2050-03-7"));
     whenInstance.trigger("reset:start:end");
 
     for (let i = 0; i < dataSource.length; i++) {
@@ -646,6 +667,408 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
+
+    whenInstance.on("secondDateSelect:before", (dateString) => {
+      $(".autocomplete").removeClass("autocomplete");
+      for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].selectable) {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+        }
+      }
+      localStorage.removeItem("last");
+      localStorage.removeItem("first");
+    });
+
+    whenInstance.on("secondDateSelect:after", (dateString) => {
+      for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].selectable && dataSource[i].position === "last") {
+          $(`.day[data-val="${dataSource[i].date}"]`).addClass(
+            "middle-day-last"
+          );
+        }
+      }
+      $(".autocomplete").removeClass("autocomplete");
+      // Inicializamos nuestra selección temporal como vacía ya que de no hacerlo no limpiara nuestra selección y agregará días que no deseamos sean agregados como ocupados
+      selectedTemp = [];
+      // Inicializamos una constante si hay mas de una fecha seleccionada seleccionara todos los días con clase "activeRange", si solo se selecciona un día se buscarán todos los días con clase "active"
+      const selected =
+        $(".activeRange").length > 0
+          ? document.querySelectorAll(".activeRange")
+          : document.querySelectorAll(".active");
+      // Se inicializa un arreglo vacío para meter las fechas seleccionadas
+      let dates = [];
+      // Por cada fecha seleccionada
+      for (let i = 0; i < selected.length; i++) {
+        // Se usa desestructuración de objetos de ES6 para estraer su fecha
+        const {
+          dataset: { val },
+        } = selected[i];
+        // Si la fecha no es undefined se agrega al arreglo de fechas
+        val != undefined && dates.push(val);
+      }
+
+      // Se filtran las fechas para evitar duplicados
+      let uniqueDates = new Set(dates);
+      // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
+      let relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
+      // Se inicializa una variable para los días de autocompletado en modo semanal
+      let autoDays = 0;
+
+      // Si el modo es semanal
+      if (mode === "weekly") {
+        if (relativeSize % 7 > 0) {
+          // Buscamos la ultima fecha que seleccionamos y ejecutamos una función
+          $(".activeRange.last").each((index, element) => {
+            // Los días que faltan para completar la semana se obtienen
+            autoDays = 7 - (relativeSize % 7);
+            // Se obtiene la fecha de cada uno de los días restantes para completar la semana
+            const lDate = new Date($(element).attr("data-val"));
+            // Creamos una condicional para verificar si febrero tiene 28 o 29 días (Esto es necesario ya que de no hacer esta verificación un bug se hace presente)
+            const isLeap = new Date(lDate.getFullYear(), 1, 29).getMonth() == 1;
+            // Si Febrero tiene 28 días además la ultima fecha fue 29 o 30 de Marzo se aumenta un día a nuestro autocompletado (es la solución del bug)
+            if (
+              !isLeap &&
+              lDate.getMonth() === 2 &&
+              (lDate.getDate() === 29 || lDate.getDate() === 30)
+            ) {
+              autoDays += 1;
+            }
+            // Por cada día en el rango de días que necesitamos para completar la semana
+            for (let i = 0; i < autoDays; i++) {
+              if (
+                $(
+                  `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+                ).hasClass("disabled-custom") ||
+                $(
+                  `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+                ).hasClass("middle-day")
+              ) {
+                break;
+              }
+
+              // Se aumenta en un día la fecha del ultimo día seleccionado
+              lDate.setDate(lDate.getDate() + 1);
+              // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
+              $(
+                `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+              ).addClass("autocomplete");
+            }
+          });
+        }
+        // Se saca el número de semanas
+        if (Math.round((relativeSize + autoDays) / 7) > nWeeks) {
+          Swal.fire({
+            icon: "error",
+            title: "error",
+            text: `You can't select more than ${nWeeks} weeks`,
+          }).then((result) => {
+            if (result.isConfirmed || result.isDismissed) {
+              dismissableDaily = true;
+              resetDismissValue();
+              whenInstance.trigger("reset:start:end");
+            }
+          });
+        }
+      }
+
+      // Si el modo de selección es semanal
+      if (mode === "hybrid") {
+        // Si hay mas de 21 noches seleccionadas
+        if (relativeSize > maxNights) {
+          // Si faltan días para completar la semana
+          if (relativeSize % 7 > 0) {
+            // Buscamos la ultima fecha que seleccionamos y ejecutamos una función
+            $(".activeRange.last").each((index, element) => {
+              // Los días que faltan para completar la semana se obtienen
+              autoDays = 7 - (relativeSize % 7);
+              // Se obtiene la fecha de cada uno de los días restantes para completar la semana
+              const lDate = new Date($(element).attr("data-val"));
+              // Creamos una condicional para verificar si febrero tiene 28 o 29 días (Esto es necesario ya que de no hacer esta verificación un bug se hace presente)
+              const isLeap =
+                new Date(lDate.getFullYear(), 1, 29).getMonth() == 1;
+              // Si Febrero tiene 28 días además la ultima fecha fue 29 o 30 de Marzo se aumenta un día a nuestro autocompletado (es la solución del bug)
+              if (
+                !isLeap &&
+                lDate.getMonth() === 2 &&
+                (lDate.getDate() === 29 || lDate.getDate() === 30)
+              ) {
+                autoDays += 1;
+              }
+              // Por cada día en el rango de días que necesitamos para completar la semana
+              for (let i = 0; i < autoDays; i++) {
+                if (
+                  $(
+                    `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+                  ).hasClass("disabled-custom") ||
+                  $(
+                    `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+                  ).hasClass("middle-day")
+                ) {
+                  break;
+                }
+
+                // Se aumenta en un día la fecha del ultimo día seleccionado
+                lDate.setDate(lDate.getDate() + 1);
+                // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
+                $(
+                  `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
+                ).addClass("autocomplete");
+              }
+            });
+          }
+          // Si el numero de semanas es mayor al límite
+          if (Math.round((relativeSize + autoDays) / 7) > nWeeks) {
+            // Se lanza una alerta
+            Swal.fire({
+              icon: "error",
+              title: "error",
+              text: `You can't select more than ${nWeeks} weeks`,
+            }).then((result) => {
+              if (result.isConfirmed || result.isDismissed) {
+                // Si la alerta es cerrada
+                dismissableDaily = true;
+                // Se limpia el calendario
+                resetDismissValue();
+                whenInstance.trigger("reset:start:end");
+              }
+            });
+          }
+        }
+
+        // Si el total de noches es menor al número de noches lanza una alerta
+        if (relativeSize < minNights) {
+          // Si la fecha no es null lanza la alerta
+          dateString !== null &&
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: `You must select at least ${minNights} nights`,
+            }).then((result) => {
+              if (result.isConfirmed || result.isDismissed) {
+                // Si la alerta es cerrada
+                dismissableDaily = true;
+                // Limpia el calendario
+                resetDismissValue();
+                whenInstance.trigger("reset:start:end");
+              }
+            });
+        }
+      }
+
+      // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado
+      let setToArray = Array.from(uniqueDates);
+
+      // Por cada día seleccionado
+      for (let i = 0; i < setToArray.length; i++) {
+        // Si el día es el pimero o ultimo seleccionado
+        if (i === 0 || i === setToArray.length - 1) {
+          // Si la fecha anterior a ese día no es válida
+          if (
+            $(`.day[data-val="${setToArray[i]}"]`)
+              .prev()
+              .attr("data-disabled") === "true"
+          ) {
+            // Se agrega al arreglo temporal como no fecha seleccionable
+            selectedTemp.push({
+              date: setToArray[i],
+              selectable: false,
+            });
+          } else if (i === 0) {
+            // Lo agrega al arreglo temporal como fecha seleccionable
+            selectedTemp.push({
+              date: setToArray[i],
+              selectable: true,
+              position: "first",
+            });
+          } else if (i === setToArray.length - 1) {
+            selectedTemp.push({
+              date: setToArray[i],
+              selectable: true,
+              position: "last",
+            });
+          }
+        } else {
+          // Si no es primero ni ultimo de nuestra selección se agrega al arreglo coo fecha no seleccionable
+          selectedTemp.push({
+            date: setToArray[i],
+            selectable: false,
+          });
+        }
+      }
+      //selectedTemp.push(...uniqueDates);
+
+      // Si el modo es diario
+      if (mode === "daily") {
+        // Si el tamaño de noches seleccionadas es mayor al número máximo de días
+        if (relativeSize > maxNights) {
+          dateString !== null &&
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: `You can't select more than ${maxNights} nights`,
+            }).then((result) => {
+              if (result.isConfirmed || result.isDismissed) {
+                dismissableDaily = true;
+                resetDismissValue();
+                whenInstance.trigger("reset:start:end");
+              }
+            });
+        }
+
+        // Si en modo diario el número de noches seleccionadas es menor al mínimo de noches
+        if (relativeSize < minNights) {
+          // Si la fecha no es null se lanza una alerta
+          dateString !== null &&
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: `You must select at least ${minNights} nights`,
+            }).then((result) => {
+              if (result.isConfirmed || result.isDismissed) {
+                // Si la alerta es cerrada
+                dismissableDaily = true;
+                // Se limpia el calendario
+                resetDismissValue();
+                whenInstance.trigger("reset:start:end");
+              }
+            });
+        }
+      }
+
+      // Si se elige la misma noche
+      if (relativeSize < 1) {
+        // Si la fecha no es null
+        dateString !== null &&
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "You must select at least one night",
+          }).then((result) => {
+            if (result.isConfirmed || result.isDismissed) {
+              // Si la alerta es cerrada
+              dismissableDaily = true;
+              // Se limpia el calendario
+              resetDismissValue();
+              whenInstance.trigger("reset:start:end");
+            }
+          });
+      }
+
+      // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
+      document.getElementById("check_out").value = `${formatDate(dateString)}`;
+      // Se busca el elemento con id "code-to" y cambiamos su innerText
+      document.getElementById("code-to").innerText = `${formatDate(
+        dateString
+      )}`;
+      // Si se seleccionaron los días usando el calendario se coloca en el selector de noches por defecto el número de noches
+      if (setWeeklyComplete) {
+        document.getElementById("n_nights").value = `${relativeSize}`;
+      }
+
+      for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].selectable) {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+        }
+      }
+
+      localStorage.removeItem("last");
+      localStorage.removeItem("first");
+    });
+
+    whenInstance.on("firstDateSelect:after", (dateString) => {
+      // Buscamos el input y el elemento con sus respectivos id y cambiamos su value e innerText a la primera fecha seleccionada
+      document.getElementById("check_in").value = `${formatDate(dateString)}`;
+      document.getElementById("code-from").innerText = `${formatDate(
+        dateString
+      )}`;
+      // Si hacemos selección por calendario se establece en true
+      setWeeklyComplete = true;
+      const targetDate = new Date(dateString);
+      const nextDate = new Date(dateString);
+      nextDate.setDate(nextDate.getDate() + 1);
+
+      if (
+        $(`.day[data-val="${targetDate.toISOString().slice(0, 10)}"]`).hasClass(
+          "middle-day"
+        ) &&
+        ($(`.day[data-val="${nextDate.toISOString().slice(0, 10)}"]`).hasClass(
+          "disabled-custom"
+        ) ||
+          $(`.day[data-val="${nextDate.toISOString().slice(0, 10)}"]`).hasClass(
+            "middle-day-last"
+          ))
+      ) {
+        Swal.fire({
+          title: "Date",
+          icon: "info",
+          text: formatDate(dateString),
+        });
+      }
+
+      for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].selectable && dataSource[i].position === "last") {
+          $(`.day[data-val="${dataSource[i].date}"]`).addClass(
+            "middle-day-last"
+          );
+        } else if (
+          dataSource[i].selectable &&
+          dataSource[i].position === "first"
+        ) {
+          $(`.day[data-val="${dataSource[i].date}"]`).addClass("middle-day");
+        }
+      }
+    });
+
+    whenInstance.on("firstDateSelect:before", (dateString) => {
+      // Limpiamos los autocomplete del calendario
+      $(".autocomplete").removeClass("autocomplete");
+      // La alerta de error se establece en falso
+      dismissableDaily = false;
+
+      for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].selectable) {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
+        }
+      }
+
+      let lasts = dataSource.filter(
+        (val) => val.position === "first" && val.selectable === true
+      );
+      let firsts = dataSource.filter(
+        (val) => val.position === "last" && val.selectable === true
+      );
+      let lastsDates = lasts.map((val) => val.date);
+      lastsDates = lastsDates.sort((a, b) => {
+        let tempA = new Date(a);
+        let tempB = new Date(b);
+        return tempA - tempB;
+      });
+      let firstsDates = firsts.map((val) => val.date);
+      firstsDates = firstsDates.sort((a, b) => {
+        let tempA = new Date(a);
+        let tempB = new Date(b);
+        return tempB - tempA;
+      });
+      for (let i = 0; i < firstsDates.length; i++) {
+        let currDate = new Date(dateString);
+        let tempDate = new Date(firstsDates[i]);
+
+        if (currDate > tempDate) {
+          localStorage.setItem("first", firstsDates[i]);
+          break;
+        }
+      }
+      for (let i = 0; i < lastsDates.length; i++) {
+        let currDate = new Date(dateString);
+        let tempDate = new Date(lastsDates[i]);
+        tempDate.setDate(tempDate.getDate() + 1);
+
+        if (currDate < tempDate) {
+          localStorage.setItem("last", lastsDates[i]);
+          break;
+        }
+      }
+    });
 
     //whenInstance = new When({
     //  // Seleccionamos el div que contendrá nuestro calendario
