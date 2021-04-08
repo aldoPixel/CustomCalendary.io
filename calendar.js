@@ -531,6 +531,10 @@ document.addEventListener("DOMContentLoaded", () => {
         title: "Date",
         icon: "info",
         text: formatDate(dateString),
+      }).then((result) => {
+        if (result.isConfirmed || result.isDismissed) {
+          window.location.reload();
+        }
       });
     }
 
@@ -1057,6 +1061,10 @@ document.addEventListener("DOMContentLoaded", () => {
           title: "Date",
           icon: "info",
           text: formatDate(dateString),
+        }).then((result) => {
+          if (result.isConfirmed || result.isDismissed) {
+            window.location.reload();
+          }
         });
       }
 
