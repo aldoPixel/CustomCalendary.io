@@ -1,6 +1,7 @@
 let whenInstance;
 let dataSource;
 let discount;
+let flaw;
 //Este evento se usa para mandar una alerta cuando se seleccione un rango de fecha no disponible, como parametros se usa la desestructuración de objetos de ES6 para obtener la fecha
 const clickLockedDays = ({
   target: {
@@ -182,6 +183,23 @@ document.addEventListener("DOMContentLoaded", () => {
   whenInstance.trigger("change:endDate", new Date("2050-03-7"));
   whenInstance.trigger("reset:start:end");
 
+  $(".days-container")
+    .last()
+    .click(() => {
+      discount = flaw ? 1 : 2;
+      console.log(discount);
+      console.log(flaw);
+      flaw = false;
+    });
+  $(".days-container")
+    .first()
+    .click(() => {
+      discount = 1;
+      flaw = true;
+      console.log(flaw);
+      console.log(discount);
+    });
+
   whenInstance.on("secondDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
     for (let i = 0; i < dataSource.length; i++) {
@@ -195,12 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Despues de seleccionar un rango de fechas se ejecuta una función que pasa como parametro la ultima fecha del rango
   whenInstance.on("secondDateSelect:after", (dateString) => {
-    $(".days-container")
-      .last()
-      .click(() => (discount = 2));
-    $(".days-container")
-      .first()
-      .click(() => (discount = 1));
     for (let i = 0; i < dataSource.length; i++) {
       if (dataSource[i].selectable && dataSource[i].position === "last") {
         $(`.day[data-val="${dataSource[i].date}"]`).addClass("middle-day-last");
@@ -689,6 +701,22 @@ document.addEventListener("DOMContentLoaded", () => {
     $(`span[data-year-num=${selectionYear}]`).click();
     whenInstance.trigger("change:monthPanel");
     $(`span[data-month-num=${selectionMonth}]`).click();
+    $(".days-container")
+      .last()
+      .click(() => {
+        discount = flaw ? 1 : 2;
+        console.log(discount);
+        console.log(false);
+        flaw = false;
+      });
+    $(".days-container")
+      .first()
+      .click(() => {
+        discount = 1;
+        flaw = true;
+        console.log(flaw);
+        console.log(discount);
+      });
 
     whenInstance.on("secondDateSelect:before", (dateString) => {
       $(".autocomplete").removeClass("autocomplete");
@@ -709,13 +737,6 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
       }
-
-      $(".days-container")
-        .last()
-        .click(() => (discount = 2));
-      $(".days-container")
-        .first()
-        .click(() => (discount = 1));
       $(".autocomplete").removeClass("autocomplete");
       // Inicializamos nuestra selección temporal como vacía ya que de no hacerlo no limpiara nuestra selección y agregará días que no deseamos sean agregados como ocupados
       selectedTemp = [];
