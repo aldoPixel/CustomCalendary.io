@@ -183,22 +183,22 @@ document.addEventListener("DOMContentLoaded", () => {
   whenInstance.trigger("change:endDate", new Date("2050-03-7"));
   whenInstance.trigger("reset:start:end");
 
-  $(".days-container")
-    .last()
-    .click(() => {
-      discount = flaw ? 1 : 2;
-      console.log(discount);
-      console.log(flaw);
-      flaw = false;
-    });
-  $(".days-container")
-    .first()
-    .click(() => {
-      discount = 1;
-      flaw = true;
-      console.log(flaw);
-      console.log(discount);
-    });
+  // $(".days-container")
+  //   .last()
+  //   .click(() => {
+  //     discount = flaw ? 1 : 2;
+  //     console.log(discount);
+  //     console.log(flaw);
+  //     flaw = false;
+  //   });
+  // $(".days-container")
+  //   .first()
+  //   .click(() => {
+  //     discount = 1;
+  //     flaw = true;
+  //     console.log(flaw);
+  //     console.log(discount);
+  //   });
 
   whenInstance.on("secondDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
@@ -605,13 +605,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // Por cada fecha seleccionada
     const { date: selectionFirstDate } = selectedTemp[0];
     let selectionYear = parseInt(selectionFirstDate.split("-")[0]);
+    console.log(selectionFirstDate);
     let selectionMonth = parseInt(selectionFirstDate.split("-")[1]) - discount;
+    console.log(selectionMonth);
+    console.log(selectionYear);
     if (selectionMonth === -1) {
       selectionMonth = 11;
+      selectionYear -= 1;
     }
     if (selectionMonth === -2) {
       selectionMonth = 10;
     }
+    console.log(selectionMonth);
     // localStorage.setItem("selection", selection);
     for (let i = 0; i < selectedTemp.length; i++) {
       //Si ya se encuentra en el arreglo de fechas
@@ -701,22 +706,22 @@ document.addEventListener("DOMContentLoaded", () => {
     $(`span[data-year-num=${selectionYear}]`).click();
     whenInstance.trigger("change:monthPanel");
     $(`span[data-month-num=${selectionMonth}]`).click();
-    $(".days-container")
-      .last()
-      .click(() => {
-        discount = flaw ? 1 : 2;
-        console.log(discount);
-        console.log(false);
-        flaw = false;
-      });
-    $(".days-container")
-      .first()
-      .click(() => {
-        discount = 1;
-        flaw = true;
-        console.log(flaw);
-        console.log(discount);
-      });
+    // $(".days-container")
+    //   .last()
+    //   .click(() => {
+    //     discount = flaw ? 1 : 2;
+    //     console.log(discount);
+    //     console.log(false);
+    //     flaw = false;
+    //   });
+    // $(".days-container")
+    //   .first()
+    //   .click(() => {
+    //     discount = 1;
+    //     flaw = true;
+    //     console.log(flaw);
+    //     console.log(discount);
+    //   });
 
     whenInstance.on("secondDateSelect:before", (dateString) => {
       $(".autocomplete").removeClass("autocomplete");
@@ -1133,6 +1138,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Se recarga el navegador (de no hacerlo no se mostrarán las fechas ocupadas)
     // window.location.reload();
+    flaw = false;
   });
 
   // Cuando interactuamos con el selector de noches
