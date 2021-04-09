@@ -366,23 +366,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Si el total de noches es menor al número de noches lanza una alerta
-      if (relativeSize < minNights) {
-        // Si la fecha no es null lanza la alerta
-        dateString !== null &&
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: `You must select at least ${minNights} nights`,
-          }).then((result) => {
-            if (result.isConfirmed || result.isDismissed) {
-              // Si la alerta es cerrada
-              dismissableDaily = true;
-              // Limpia el calendario
-              resetDismissValue();
-              whenInstance.trigger("reset:start:end");
-            }
-          });
-      }
+      // if (relativeSize < minNights) {
+      //   // Si la fecha no es null lanza la alerta
+      //   dateString !== null &&
+      //     Swal.fire({
+      //       icon: "error",
+      //       title: "Error",
+      //       text: `You must select at least ${minNights} nights`,
+      //     }).then((result) => {
+      //       if (result.isConfirmed || result.isDismissed) {
+      //         // Si la alerta es cerrada
+      //         dismissableDaily = true;
+      //         // Limpia el calendario
+      //         resetDismissValue();
+      //         whenInstance.trigger("reset:start:end");
+      //       }
+      //     });
+      // }
     }
 
     // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado
@@ -446,43 +446,43 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Si en modo diario el número de noches seleccionadas es menor al mínimo de noches
-      if (relativeSize < minNights) {
-        // Si la fecha no es null se lanza una alerta
-        dateString !== null &&
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: `You must select at least ${minNights} nights`,
-          }).then((result) => {
-            if (result.isConfirmed || result.isDismissed) {
-              // Si la alerta es cerrada
-              dismissableDaily = true;
-              // Se limpia el calendario
-              resetDismissValue();
-              whenInstance.trigger("reset:start:end");
-            }
-          });
-      }
+      // if (relativeSize < minNights) {
+      //   // Si la fecha no es null se lanza una alerta
+      //   dateString !== null &&
+      //     Swal.fire({
+      //       icon: "error",
+      //       title: "Error",
+      //       text: `You must select at least ${minNights} nights`,
+      //     }).then((result) => {
+      //       if (result.isConfirmed || result.isDismissed) {
+      //         // Si la alerta es cerrada
+      //         dismissableDaily = true;
+      //         // Se limpia el calendario
+      //         resetDismissValue();
+      //         whenInstance.trigger("reset:start:end");
+      //       }
+      //     });
+      // }
     }
 
     // Si se elige la misma noche
-    if (relativeSize < 1) {
-      // Si la fecha no es null
-      dateString !== null &&
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "You must select at least one night",
-        }).then((result) => {
-          if (result.isConfirmed || result.isDismissed) {
-            // Si la alerta es cerrada
-            dismissableDaily = true;
-            // Se limpia el calendario
-            resetDismissValue();
-            whenInstance.trigger("reset:start:end");
-          }
-        });
-    }
+    // if (relativeSize < 1) {
+    //   // Si la fecha no es null
+    //   dateString !== null &&
+    //     Swal.fire({
+    //       icon: "error",
+    //       title: "Error",
+    //       text: "You must select at least one night",
+    //     }).then((result) => {
+    //       if (result.isConfirmed || result.isDismissed) {
+    //         // Si la alerta es cerrada
+    //         dismissableDaily = true;
+    //         // Se limpia el calendario
+    //         resetDismissValue();
+    //         whenInstance.trigger("reset:start:end");
+    //       }
+    //     });
+    // }
 
     // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
     document.getElementById("check_out").value = `${formatDate(dateString)}`;
@@ -605,14 +605,29 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cuando se presiona el botón con el id "create_event"
   document.getElementById("create_event").addEventListener("click", () => {
     // Se obtiene un arreglo de fechas en el localStorage
+    if (selectedTemp.length === 1) {
+      Swal.fire({
+        icon: "error",
+        title: "error",
+        text: "You must select at least one night",
+      });
+      return;
+    }
+
+    if (selectedTemp.length < minNights) {
+      Swal.fire({
+        icon: "error",
+        title: "error",
+        text: `You must select at least ${minNights} nights`,
+      });
+      return;
+    }
+
     const tempArr = dataSource.map((val) => val.date);
     // Por cada fecha seleccionada
     const { date: selectionFirstDate } = selectedTemp[0];
     let selectionYear = parseInt(selectionFirstDate.split("-")[0]);
-    console.log(selectionFirstDate);
     let selectionMonth = parseInt(selectionFirstDate.split("-")[1]) - discount;
-    console.log(selectionMonth);
-    console.log(selectionYear);
     if (selectionMonth === -1) {
       selectionMonth = 11;
       selectionYear -= 1;
@@ -620,7 +635,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectionMonth === -2) {
       selectionMonth = 10;
     }
-    console.log(selectionMonth);
     // localStorage.setItem("selection", selection);
     for (let i = 0; i < selectedTemp.length; i++) {
       //Si ya se encuentra en el arreglo de fechas
@@ -895,23 +909,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Si el total de noches es menor al número de noches lanza una alerta
-        if (relativeSize < minNights) {
-          // Si la fecha no es null lanza la alerta
-          dateString !== null &&
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: `You must select at least ${minNights} nights`,
-            }).then((result) => {
-              if (result.isConfirmed || result.isDismissed) {
-                // Si la alerta es cerrada
-                dismissableDaily = true;
-                // Limpia el calendario
-                resetDismissValue();
-                whenInstance.trigger("reset:start:end");
-              }
-            });
-        }
+        // if (relativeSize < minNights) {
+        //   // Si la fecha no es null lanza la alerta
+        //   dateString !== null &&
+        //     Swal.fire({
+        //       icon: "error",
+        //       title: "Error",
+        //       text: `You must select at least ${minNights} nights`,
+        //     }).then((result) => {
+        //       if (result.isConfirmed || result.isDismissed) {
+        //         // Si la alerta es cerrada
+        //         dismissableDaily = true;
+        //         // Limpia el calendario
+        //         resetDismissValue();
+        //         whenInstance.trigger("reset:start:end");
+        //       }
+        //     });
+        // }
       }
 
       // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado
@@ -975,43 +989,43 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Si en modo diario el número de noches seleccionadas es menor al mínimo de noches
-        if (relativeSize < minNights) {
-          // Si la fecha no es null se lanza una alerta
-          dateString !== null &&
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: `You must select at least ${minNights} nights`,
-            }).then((result) => {
-              if (result.isConfirmed || result.isDismissed) {
-                // Si la alerta es cerrada
-                dismissableDaily = true;
-                // Se limpia el calendario
-                resetDismissValue();
-                whenInstance.trigger("reset:start:end");
-              }
-            });
-        }
+        // if (relativeSize < minNights) {
+        //   // Si la fecha no es null se lanza una alerta
+        //   dateString !== null &&
+        //     Swal.fire({
+        //       icon: "error",
+        //       title: "Error",
+        //       text: `You must select at least ${minNights} nights`,
+        //     }).then((result) => {
+        //       if (result.isConfirmed || result.isDismissed) {
+        //         // Si la alerta es cerrada
+        //         dismissableDaily = true;
+        //         // Se limpia el calendario
+        //         resetDismissValue();
+        //         whenInstance.trigger("reset:start:end");
+        //       }
+        //     });
+        // }
       }
 
       // Si se elige la misma noche
-      if (relativeSize < 1) {
-        // Si la fecha no es null
-        dateString !== null &&
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "You must select at least one night",
-          }).then((result) => {
-            if (result.isConfirmed || result.isDismissed) {
-              // Si la alerta es cerrada
-              dismissableDaily = true;
-              // Se limpia el calendario
-              resetDismissValue();
-              whenInstance.trigger("reset:start:end");
-            }
-          });
-      }
+      // if (relativeSize < 1) {
+      //   // Si la fecha no es null
+      //   dateString !== null &&
+      //     Swal.fire({
+      //       icon: "error",
+      //       title: "Error",
+      //       text: "You must select at least one night",
+      //     }).then((result) => {
+      //       if (result.isConfirmed || result.isDismissed) {
+      //         // Si la alerta es cerrada
+      //         dismissableDaily = true;
+      //         // Se limpia el calendario
+      //         resetDismissValue();
+      //         whenInstance.trigger("reset:start:end");
+      //       }
+      //     });
+      // }
 
       // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
       document.getElementById("check_out").value = `${formatDate(dateString)}`;
