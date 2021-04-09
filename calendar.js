@@ -533,7 +533,9 @@ document.addEventListener("DOMContentLoaded", () => {
         text: formatDate(dateString),
       }).then((result) => {
         if (result.isConfirmed || result.isDismissed) {
-          window.location.reload();
+          whenInstance.trigger("change:startDate", new Date("2050-03-4"));
+          whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+          whenInstance.trigger("reset:start:end");
         }
       });
     }
@@ -611,6 +613,7 @@ document.addEventListener("DOMContentLoaded", () => {
         title: "error",
         text: "You must select at least one night",
       });
+      whenInstance.trigger("reset:start:end");
       return;
     }
 
@@ -620,6 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
         title: "error",
         text: `You must select at least ${minNights} nights`,
       });
+      whenInstance.trigger("reset:start:end");
       return;
     }
 
@@ -1077,7 +1081,9 @@ document.addEventListener("DOMContentLoaded", () => {
           text: formatDate(dateString),
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
-            window.location.reload();
+            whenInstance.trigger("change:startDate", new Date("2050-03-4"));
+            whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+            whenInstance.trigger("reset:start:end");
           }
         });
       }
