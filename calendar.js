@@ -344,6 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
               // Se aumenta en un día la fecha del ultimo día seleccionado
               lDate.setDate(lDate.getDate() + 1);
+              dates.push(lDate.toISOString().slice(0, 10));
               // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
               $(
                 `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
@@ -369,6 +370,11 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
       }
+
+      // Se filtran las fechas para evitar duplicados
+      uniqueDates = new Set(dates);
+      // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
+      relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
 
       // Si el total de noches es menor al número de noches lanza una alerta
       // if (relativeSize < minNights) {
@@ -911,6 +917,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Se aumenta en un día la fecha del ultimo día seleccionado
                 lDate.setDate(lDate.getDate() + 1);
+                dates.push(lDate.toISOString().slice(0, 10));
                 // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
                 $(
                   `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
@@ -936,6 +943,11 @@ document.addEventListener("DOMContentLoaded", () => {
             });
           }
         }
+
+        // Se filtran las fechas para evitar duplicados
+        uniqueDates = new Set(dates);
+        // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
+        relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
 
         // Si el total de noches es menor al número de noches lanza una alerta
         // if (relativeSize < minNights) {
