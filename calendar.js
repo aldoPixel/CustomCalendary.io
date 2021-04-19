@@ -279,7 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Se aumenta en un día la fecha del ultimo día seleccionado
             lDate.setDate(lDate.getDate() + 1);
-            // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
+            dates.push(lDate.toISOString().slice(0, 10));
             $(`.day[data-val="${lDate.toISOString().slice(0, 10)}"]`).addClass(
               "autocomplete"
             );
@@ -301,6 +301,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Se filtran las fechas para evitar duplicados
+    uniqueDates = new Set(dates);
+    // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
+    relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
 
     // Si el modo de selección es semanal
     if (mode === "hybrid") {
@@ -485,7 +490,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // }
 
     // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
-    document.getElementById("check_out").value = `${formatDate(dateString)}`;
+    const lDateTemp = new Date(dates[dates.length - 1]);
+    document.getElementById("check_out").value = `${formatDate(
+      lDateTemp.setDate(lDateTemp.getDate() + 1)
+    )}`;
     // Se busca el elemento con id "code-to" y cambiamos su innerText
     document.getElementById("code-to").innerText = `${formatDate(dateString)}`;
     // Si se seleccionaron los días usando el calendario se coloca en el selector de noches por defecto el número de noches
@@ -612,7 +620,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const firstSelection = new Date(firstTemp);
     const lastSelection = new Date(lastTemp);
 
-    if (selectedTemp.length === 1) {
+    if (selectedTemp.length < 2) {
       Swal.fire({
         icon: "error",
         title: "error",
@@ -836,6 +844,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
               // Se aumenta en un día la fecha del ultimo día seleccionado
               lDate.setDate(lDate.getDate() + 1);
+              dates.push(lDate.toISOString().slice(0, 10));
               // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
               $(
                 `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
@@ -858,6 +867,11 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
       }
+
+      // Se filtran las fechas para evitar duplicados
+      uniqueDates = new Set(dates);
+      // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
+      relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
 
       // Si el modo de selección es semanal
       if (mode === "hybrid") {
@@ -1043,7 +1057,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // }
 
       // Se busca el input con el id "check_out" y cambiamos su valor al ultimo elemento con clase autocomplete, además de reemplazar los "-" por "/", todo realiado con jQuery, en caso de no encontrar autocompletado se coloca la ultima fecha seleccionada
-      document.getElementById("check_out").value = `${formatDate(dateString)}`;
+      const lDateTemp = new Date(dates[dates.length - 1]);
+      document.getElementById("check_out").value = `${formatDate(
+        lDateTemp.setDate(lDateTemp.getDate() + 1)
+      )}`;
       // Se busca el elemento con id "code-to" y cambiamos su innerText
       document.getElementById("code-to").innerText = `${formatDate(
         dateString
