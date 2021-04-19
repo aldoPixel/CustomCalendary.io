@@ -62,8 +62,8 @@ const noSelectDates = () =>
   }).then((result) => {
     if (result.isConfirmed || result.isDismissed) {
       // window.location.reload();
-      whenInstance.trigger("change:startDate", new Date("2050-03-4"));
-      whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+      whenInstance.trigger("change:startDate", new Date());
+      whenInstance.trigger("change:endDate", new Date());
       whenInstance.trigger("reset:start:end");
       for (let i = 0; i < dataSource.length; i++) {
         if (dataSource[i].selectable) {
@@ -179,8 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
     disabledDates: blockedDays,
   });
 
-  whenInstance.trigger("change:startDate", new Date("2050-03-4"));
-  whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+  whenInstance.trigger("change:startDate", new Date());
+  whenInstance.trigger("change:endDate", new Date());
   whenInstance.trigger("reset:start:end");
 
   // $(".days-container")
@@ -533,8 +533,8 @@ document.addEventListener("DOMContentLoaded", () => {
         text: formatDate(dateString),
       }).then((result) => {
         if (result.isConfirmed || result.isDismissed) {
-          whenInstance.trigger("change:startDate", new Date("2050-03-4"));
-          whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+          whenInstance.trigger("change:startDate", new Date());
+          whenInstance.trigger("change:endDate", new Date());
           whenInstance.trigger("reset:start:end");
         }
       });
@@ -607,6 +607,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cuando se presiona el botón con el id "create_event"
   document.getElementById("create_event").addEventListener("click", () => {
     // Se obtiene un arreglo de fechas en el localStorage
+    const { date: firstTemp } = selectedTemp[0];
+    const { date: lastTemp } = selectedTemp[selectedTemp.length - 1];
+    const firstSelection = new Date(firstTemp);
+    const lastSelection = new Date(lastTemp);
+
     if (selectedTemp.length === 1) {
       Swal.fire({
         icon: "error",
@@ -686,8 +691,14 @@ document.addEventListener("DOMContentLoaded", () => {
       disabledDates: blockedDays,
     });
 
-    whenInstance.trigger("change:startDate", new Date("2050-03-4"));
-    whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+    whenInstance.trigger(
+      "change:startDate",
+      firstSelection.setDate(firstSelection.getDate() + 1)
+    );
+    whenInstance.trigger(
+      "change:endDate",
+      lastSelection.setDate(lastSelection.getDate() + 1)
+    );
     whenInstance.trigger("reset:start:end");
 
     for (let i = 0; i < dataSource.length; i++) {
@@ -1081,8 +1092,8 @@ document.addEventListener("DOMContentLoaded", () => {
           text: formatDate(dateString),
         }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
-            whenInstance.trigger("change:startDate", new Date("2050-03-4"));
-            whenInstance.trigger("change:endDate", new Date("2050-03-7"));
+            whenInstance.trigger("change:startDate", new Date());
+            whenInstance.trigger("change:endDate", new Date());
             whenInstance.trigger("reset:start:end");
           }
         });
