@@ -762,8 +762,13 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < selectedTemp.length; i++) {
       //Si ya se encuentra en el arreglo de fechas
       if (tempArr.includes(selectedTemp[i].date)) {
+        if (i === 0) {
+          selectedTemp.position = "first";
+          selectedTemp.selectable = true;
+        } else {
+          selectedTemp[i].selectable = false;
+        }
         // Se deshabilita la selección en la fecha
-        selectedTemp[i].selectable = false;
         // Se filtra el arreglo para que la fecha seleccionada no se duplique
         dataSource = dataSource.filter(
           (val) => val.date !== selectedTemp[i].date
