@@ -28,6 +28,26 @@ const clickLockedDays = ({
               }
             }
           }
+          if (dataSource[i].position === "autocomplete") {
+            const temp =
+              document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+              "";
+            if (temp) {
+              for (let i = 0; i < temp.length; i++) {
+                temp[i].classList.add("autocomplete");
+              }
+            }
+          }
+          if (dataSource[i].position === "divider") {
+            const temp =
+              document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+              "";
+            if (temp) {
+              for (let i = 0; i < temp.length; i++) {
+                temp[i].classList.add("middle-day-divider");
+              }
+            }
+          }
           if (dataSource[i].position === "first") {
             const temp =
               document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
@@ -74,6 +94,26 @@ const noSelectDates = () =>
             if (temp) {
               for (let i = 0; i < temp.length; i++) {
                 temp[i].classList.add("middle-day-last");
+              }
+            }
+          }
+          if (dataSource[i].position === "autocomplete") {
+            const temp =
+              document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+              "";
+            if (temp) {
+              for (let i = 0; i < temp.length; i++) {
+                temp[i].classList.add("autocomplete");
+              }
+            }
+          }
+          if (dataSource[i].position === "divider") {
+            const temp =
+              document.querySelectorAll(`[data-val="${dataSource[i].date}"]`) ||
+              "";
+            if (temp) {
+              for (let i = 0; i < temp.length; i++) {
+                temp[i].classList.add("middle-day-divider");
               }
             }
           }
@@ -148,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Esta variable va a identifar si se usa en modo semanal el selector de noches en el input o en el calendario
   let setWeeklyComplete = true;
   // Esta variable establece el modo de selección del calendario ya sea semanal ("weekly"), diario ("daily") o hibrido ("hybrid")
-  let mode = "hybrid";
+  let mode = "weekly";
   // Esta variable establece el número de semanas
   let nWeeks = 4;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
@@ -203,6 +243,16 @@ document.addEventListener("DOMContentLoaded", () => {
   whenInstance.on("secondDateSelect:before", (dateString) => {
     $(".autocomplete").removeClass("autocomplete");
     for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].position === "divider") {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass(
+          "middle-day-divider"
+        );
+        continue;
+      }
+      if (dataSource[i].position === "autocomplete") {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass("autocomplete");
+        continue;
+      }
       if (dataSource[i].selectable) {
         $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
       }
@@ -216,9 +266,21 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < dataSource.length; i++) {
       if (dataSource[i].selectable && dataSource[i].position === "last") {
         $(`.day[data-val="${dataSource[i].date}"]`).addClass("middle-day-last");
+      } else if (
+        dataSource[i].selectable &&
+        dataSource[i].position === "divider"
+      ) {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass(
+          "middle-day-divider"
+        );
+      } else if (
+        dataSource[i].selectable &&
+        dataSource[i].position === "autocomplete"
+      ) {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass("autocomplete");
       }
     }
-    $(".autocomplete").removeClass("autocomplete");
+    // $(".autocomplete").removeClass("autocomplete");
     // Inicializamos nuestra selección temporal como vacía ya que de no hacerlo no limpiara nuestra selección y agregará días que no deseamos sean agregados como ocupados
     selectedTemp = [];
     // Inicializamos una constante si hay mas de una fecha seleccionada seleccionara todos los días con clase "activeRange", si solo se selecciona un día se buscarán todos los días con clase "active"
@@ -228,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : document.querySelectorAll(".active");
     // Se inicializa un arreglo vacío para meter las fechas seleccionadas
     let dates = [];
+    let autocompleteDates = [];
     // Por cada fecha seleccionada
     for (let i = 0; i < selected.length; i++) {
       // Se usa desestructuración de objetos de ES6 para estraer su fecha
@@ -240,6 +303,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Se filtran las fechas para evitar duplicados
     let uniqueDates = new Set(dates);
+    let uniqueAutoComplete = new Set(autocompleteDates);
     // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
     let relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
     // Se inicializa una variable para los días de autocompletado en modo semanal
@@ -279,7 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Se aumenta en un día la fecha del ultimo día seleccionado
             lDate.setDate(lDate.getDate() + 1);
-            dates.push(lDate.toISOString().slice(0, 10));
+            autocompleteDates.push(lDate.toISOString().slice(0, 10));
             $(`.day[data-val="${lDate.toISOString().slice(0, 10)}"]`).addClass(
               "autocomplete"
             );
@@ -302,10 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Se filtran las fechas para evitar duplicados
-    uniqueDates = new Set(dates);
-    // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
-    relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
+    uniqueAutoComplete = new Set(autocompleteDates);
 
     // Si el modo de selección es semanal
     if (mode === "hybrid") {
@@ -344,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
               // Se aumenta en un día la fecha del ultimo día seleccionado
               lDate.setDate(lDate.getDate() + 1);
-              dates.push(lDate.toISOString().slice(0, 10));
+              autocompleteDates.push(lDate.toISOString().slice(0, 10));
               // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
               $(
                 `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
@@ -371,10 +432,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Se filtran las fechas para evitar duplicados
-      uniqueDates = new Set(dates);
-      // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
-      relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
+      uniqueAutoComplete = new Set(autocompleteDates);
 
       // Si el total de noches es menor al número de noches lanza una alerta
       // if (relativeSize < minNights) {
@@ -398,6 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado
     let setToArray = Array.from(uniqueDates);
+    let setToAutocomplete = Array.from(uniqueAutoComplete);
 
     // Por cada día seleccionado
     for (let i = 0; i < setToArray.length; i++) {
@@ -422,6 +481,14 @@ document.addEventListener("DOMContentLoaded", () => {
             position: "first",
           });
         } else if (i === setToArray.length - 1) {
+          if (setToAutocomplete.length > 0) {
+            selectedTemp.push({
+              date: setToArray[i],
+              selectable: true,
+              position: "divider",
+            });
+            continue;
+          }
           selectedTemp.push({
             date: setToArray[i],
             selectable: true,
@@ -435,6 +502,14 @@ document.addEventListener("DOMContentLoaded", () => {
           selectable: false,
         });
       }
+    }
+
+    for (let i = 0; i < setToAutocomplete.length; i++) {
+      selectedTemp.push({
+        date: setToAutocomplete[i],
+        selectable: true,
+        position: "autocomplete",
+      });
     }
     //selectedTemp.push(...uniqueDates);
 
@@ -508,6 +583,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     for (let i = 0; i < dataSource.length; i++) {
+      if (dataSource[i].position === "divider") {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass(
+          "middle-day-divider"
+        );
+        continue;
+      }
+      if (dataSource[i].position === "autocomplete") {
+        $(`.day[data-val='${dataSource[i].date}']`).addClass("autocomplete");
+        continue;
+      }
       if (dataSource[i].selectable) {
         $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
       }
@@ -562,6 +647,19 @@ document.addEventListener("DOMContentLoaded", () => {
         dataSource[i].position === "first"
       ) {
         $(`.day[data-val="${dataSource[i].date}"]`).addClass("middle-day");
+      } else if (
+        dataSource[i].selectable &&
+        dataSource[i].position === "divider"
+      ) {
+        $(`.day[data-val="${dataSource[i].date}"]`).addClass(
+          "middle-day-divider"
+        );
+      } else if (
+        dataSource[i].selectable &&
+        dataSource[i].position === "autocomplete"
+      ) {
+        $(`.day[data-val='${dataSource[i].date}']`).removeClass("middle-day");
+        $(`.day[data-val="${dataSource[i].date}"]`).addClass("autocomplete");
       }
     }
   });
@@ -583,7 +681,9 @@ document.addEventListener("DOMContentLoaded", () => {
       (val) => val.position === "first" && val.selectable === true
     );
     let firsts = dataSource.filter(
-      (val) => val.position === "last" && val.selectable === true
+      (val) =>
+        val.position === "last" ||
+        (val.position === "divider" && val.selectable === true)
     );
     let lastsDates = lasts.map((val) => val.date);
     lastsDates = lastsDates.sort((a, b) => {
@@ -773,6 +873,16 @@ document.addEventListener("DOMContentLoaded", () => {
     whenInstance.on("secondDateSelect:before", (dateString) => {
       $(".autocomplete").removeClass("autocomplete");
       for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].position === "divider") {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass(
+            "middle-day-divider"
+          );
+          continue;
+        }
+        if (dataSource[i].position === "autocomplete") {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass("autocomplete");
+          continue;
+        }
         if (dataSource[i].selectable) {
           $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
         }
@@ -787,6 +897,19 @@ document.addEventListener("DOMContentLoaded", () => {
           $(`.day[data-val="${dataSource[i].date}"]`).addClass(
             "middle-day-last"
           );
+        } else if (
+          dataSource[i].selectable &&
+          dataSource[i].position === "divider"
+        ) {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass(
+            "middle-day-divider"
+          );
+        } else if (
+          dataSource[i].selectable &&
+          dataSource[i].position === "autocomplete"
+        ) {
+          $(`.day[data-val='${dataSource[i].date}']`).removeClass("middle-day");
+          $(`.day[data-val='${dataSource[i].date}']`).addClass("autocomplete");
         }
       }
       $(".autocomplete").removeClass("autocomplete");
@@ -799,6 +922,7 @@ document.addEventListener("DOMContentLoaded", () => {
           : document.querySelectorAll(".active");
       // Se inicializa un arreglo vacío para meter las fechas seleccionadas
       let dates = [];
+      let autocompleteDates = [];
       // Por cada fecha seleccionada
       for (let i = 0; i < selected.length; i++) {
         // Se usa desestructuración de objetos de ES6 para estraer su fecha
@@ -811,6 +935,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Se filtran las fechas para evitar duplicados
       let uniqueDates = new Set(dates);
+      let uniqueAutoComplete = new Set(autocompleteDates);
       // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
       let relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
       // Se inicializa una variable para los días de autocompletado en modo semanal
@@ -850,7 +975,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
               // Se aumenta en un día la fecha del ultimo día seleccionado
               lDate.setDate(lDate.getDate() + 1);
-              dates.push(lDate.toISOString().slice(0, 10));
+              autocompleteDates.push(lDate.toISOString().slice(0, 10));
               // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
               $(
                 `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
@@ -874,10 +999,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Se filtran las fechas para evitar duplicados
-      uniqueDates = new Set(dates);
-      // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
-      relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
+      uniqueAutoComplete = new Set(autocompleteDates);
 
       // Si el modo de selección es semanal
       if (mode === "hybrid") {
@@ -917,7 +1039,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Se aumenta en un día la fecha del ultimo día seleccionado
                 lDate.setDate(lDate.getDate() + 1);
-                dates.push(lDate.toISOString().slice(0, 10));
+                autocompleteDates.push(lDate.toISOString().slice(0, 10));
                 // Se busca el elemento con esa fecha y se le agrega una clase "autocomplete"
                 $(
                   `.day[data-val="${lDate.toISOString().slice(0, 10)}"]`
@@ -944,10 +1066,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // Se filtran las fechas para evitar duplicados
-        uniqueDates = new Set(dates);
-        // Se obtienen los números de noches en caso de que solo se tenga una noche por defecto pondrá el número 1
-        relativeSize = uniqueDates.size - 1 > 0 ? uniqueDates.size - 1 : 0;
+        uniqueAutoComplete = new Set(autocompleteDates);
 
         // Si el total de noches es menor al número de noches lanza una alerta
         // if (relativeSize < minNights) {
@@ -971,6 +1090,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Se agregan a nuestro arreglo temporal todas las fechas en el filtrado
       let setToArray = Array.from(uniqueDates);
+      let setToAutocomplete = Array.from(uniqueAutoComplete);
 
       // Por cada día seleccionado
       for (let i = 0; i < setToArray.length; i++) {
@@ -995,6 +1115,14 @@ document.addEventListener("DOMContentLoaded", () => {
               position: "first",
             });
           } else if (i === setToArray.length - 1) {
+            if (setToAutocomplete.length > 0) {
+              selectedTemp.push({
+                date: setToArray[i],
+                selectable: true,
+                position: "divider",
+              });
+              continue;
+            }
             selectedTemp.push({
               date: setToArray[i],
               selectable: true,
@@ -1008,6 +1136,14 @@ document.addEventListener("DOMContentLoaded", () => {
             selectable: false,
           });
         }
+      }
+
+      for (let i = 0; i < setToAutocomplete.length; i++) {
+        selectedTemp.push({
+          date: setToAutocomplete[i],
+          selectable: true,
+          position: "autocomplete",
+        });
       }
       //selectedTemp.push(...uniqueDates);
 
@@ -1083,6 +1219,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].position === "divider") {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass(
+            "middle-day-divider"
+          );
+          continue;
+        }
+        if (dataSource[i].position === "autocomplete") {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass("autocomplete");
+          continue;
+        }
         if (dataSource[i].selectable) {
           $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
         }
@@ -1138,6 +1284,19 @@ document.addEventListener("DOMContentLoaded", () => {
           dataSource[i].position === "first"
         ) {
           $(`.day[data-val="${dataSource[i].date}"]`).addClass("middle-day");
+        } else if (
+          dataSource[i].selectable &&
+          dataSource[i].position === "divider"
+        ) {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass(
+            "middle-day-divider"
+          );
+        } else if (
+          dataSource[i].selectable &&
+          dataSource[i].position === "autocomplete"
+        ) {
+          $(`.day[data-val='${dataSource[i].date}']`).removeClass("middle-day");
+          $(`.day[data-val='${dataSource[i].date}']`).addClass("autocomplete");
         }
       }
     });
@@ -1149,6 +1308,16 @@ document.addEventListener("DOMContentLoaded", () => {
       dismissableDaily = false;
 
       for (let i = 0; i < dataSource.length; i++) {
+        if (dataSource[i].position === "divider") {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass(
+            "middle-day-divider"
+          );
+          continue;
+        }
+        if (dataSource[i].position === "autocomplete") {
+          $(`.day[data-val='${dataSource[i].date}']`).addClass("autocomplete");
+          continue;
+        }
         if (dataSource[i].selectable) {
           $(`.day[data-val='${dataSource[i].date}']`).addClass("middle-day");
         }
@@ -1158,7 +1327,9 @@ document.addEventListener("DOMContentLoaded", () => {
         (val) => val.position === "first" && val.selectable === true
       );
       let firsts = dataSource.filter(
-        (val) => val.position === "last" && val.selectable === true
+        (val) =>
+          val.position === "last" ||
+          (val.position === "divider" && val.selectable === true)
       );
       let lastsDates = lasts.map((val) => val.date);
       lastsDates = lastsDates.sort((a, b) => {

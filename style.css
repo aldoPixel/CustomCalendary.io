@@ -90,6 +90,22 @@
   ) !important;
 }
 
+.middle-day-divider {
+  background: rgb(235, 248, 251) !important;
+  /*background: linear-gradient(*/
+  /*0deg,*/
+  /*rgba(235, 248, 251, 1) 0%,*/
+  /*rgba(235, 195, 198, 1) 100%*/
+  /*) !important;*/
+  background: linear-gradient(
+    135deg,
+    #ebc3c6 0%,
+    #ebc3c6 50%,
+    #d4f1e1 51%,
+    #d4f1e1 100%
+  ) !important;
+}
+
 .serial-address {
   display: flex;
   flex-flow: row wrap;
