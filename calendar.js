@@ -193,6 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let nWeeks = 4;
   // Inicializamos un arreglo temporal donde se guardarán las fechas seleccionadas
   let selectedTemp = [];
+  let lastSavedDate = sessionStorage.getItem("lastSavedDate");
 
   // Por cada fecha en el LocalStorage filtramos las que no están seleccionadas y las agregamos a nuestro arreglo de fechas ocupadas
   for (let i = 0; i < dataSource.length; i++) {
@@ -222,6 +223,23 @@ document.addEventListener("DOMContentLoaded", () => {
   whenInstance.trigger("change:startDate", new Date());
   whenInstance.trigger("change:endDate", new Date());
   whenInstance.trigger("reset:start:end");
+
+  if (lastSavedDate) {
+    let selectionYear = parseInt(lastSavedDate.split("-")[0]);
+    let selectionMonth = parseInt(lastSavedDate.split("-")[1]) - 2;
+    if (selectionMonth === -1) {
+      selectionMonth = 11;
+      selectionYear -= 1;
+    }
+    if (selectionMonth === -2) {
+      selectionMonth = 10;
+    }
+
+    whenInstance.trigger("change:yearPanel");
+    $(`span[data-year-num=${selectionYear}]`).click();
+    whenInstance.trigger("change:monthPanel");
+    $(`span[data-month-num=${selectionMonth}]`).click();
+  }
 
   // $(".days-container")
   //   .last()
@@ -749,6 +767,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tempArr = dataSource.map((val) => val.date);
     // Por cada fecha seleccionada
     const { date: selectionFirstDate } = selectedTemp[0];
+    sessionStorage.setItem("lastSavedDate", selectionFirstDate);
     let selectionYear = parseInt(selectionFirstDate.split("-")[0]);
     let selectionMonth = parseInt(selectionFirstDate.split("-")[1]) - discount;
     if (selectionMonth === -1) {
