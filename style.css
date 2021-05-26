@@ -169,6 +169,11 @@
   color: blue;
 }
 
+.no-show-zone {
+  background-color: #fff !important;
+  color: #fff !important;
+}
+
 .btn-success {
   color: #fff !important;
   background-color: #78c416 !important;
