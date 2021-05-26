@@ -169,7 +169,7 @@ input {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   width: 420px;
-  height: 240px;
+  height: 200px;
   background-color: #fff;
 }
 .days-page {
@@ -177,15 +177,15 @@ input {
   overflow: visible;
   width: 420px;
   height: 0;
-  -webkit-transition-timing-function: cubic-bezier(0, 0, 0.78, 1);
-  transition-timing-function: cubic-bezier(0, 0, 0.78, 1);
-  -webkit-transition-duration: 0.23s;
-  transition-duration: 0.23s;
-  -webkit-transition-property: -webkit-transform;
-  transition-property: -webkit-transform;
-  transition-property: transform;
-  transition-property: transform, -webkit-transform;
-  will-change: transform;
+  /* -webkit-transition-timing-function: cubic-bezier(0, 0, 0.78, 1); */
+  /* transition-timing-function: cubic-bezier(0, 0, 0.78, 1); */
+  /* -webkit-transition-duration: 0.23s; */
+  /* transition-duration: 0.23s; */
+  /* -webkit-transition-property: -webkit-transform; */
+  /* transition-property: -webkit-transform; */
+  /* transition-property: transform; */
+  /* transition-property: transform, -webkit-transform; */
+  /* will-change: transform; */
 }
 .days-page.prev2 {
   -webkit-transform: translateY(-400px);
